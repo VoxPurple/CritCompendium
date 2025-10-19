@@ -158,6 +158,7 @@ namespace CritCompendiumInfrastructure.Business.Search.Input
       private void _compendium_TagsChanged(object sender, EventArgs e)
       {
          UpdateTags();
+         Tag = _tagOptions[0];
       }
 
       #endregion

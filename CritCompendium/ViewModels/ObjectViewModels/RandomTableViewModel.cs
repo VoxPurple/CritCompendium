@@ -4,6 +4,7 @@ using System.ComponentModel;
 using System.Threading;
 using System.Windows;
 using System.Windows.Input;
+using CritCompendium.Business;
 using CritCompendiumInfrastructure;
 using CritCompendiumInfrastructure.Models;
 using CritCompendiumInfrastructure.Business;
@@ -20,11 +21,13 @@ namespace CritCompendium.ViewModels.ObjectViewModels
       private readonly List<RandomTableRowViewModel> _rows = new List<RandomTableRowViewModel>();
       private readonly BackgroundWorker _rollWorker = new BackgroundWorker();
 
-      private int _rolledNumber;
-      private string _rolledValue;
+      private bool _isRolling = false;
+      private int _rolledNumber = 0;
+      private string _rolledValue = "No Table Row Selected";
 
       private readonly ICommand _rollCommand;
       private readonly ICommand _copyValueCommand;
+      private readonly ICommand _selectRowCommand;
 
       #endregion
 
@@ -46,6 +49,7 @@ namespace CritCompendium.ViewModels.ObjectViewModels
 
          _rollCommand = new RelayCommand(obj => true, obj => Roll());
          _copyValueCommand = new RelayCommand(obj => true, obj => CopyValue(obj as RandomTableRowViewModel));
+         _selectRowCommand = new RelayCommand(obj => true, obj => SelectRow(obj as RandomTableRowViewModel));
       }
 
       #endregion
@@ -98,6 +102,7 @@ namespace CritCompendium.ViewModels.ObjectViewModels
       public int RolledNumber
       {
          get { return _rolledNumber; }
+         set { Set(ref _rolledNumber, value); }
       }
 
       /// <summary>
@@ -106,6 +111,7 @@ namespace CritCompendium.ViewModels.ObjectViewModels
       public string RolledValue
       {
          get { return _rolledValue; }
+         set { Set(ref _rolledValue, value); }
       }
 
       /// <summary>
@@ -132,12 +138,22 @@ namespace CritCompendium.ViewModels.ObjectViewModels
          get { return _copyValueCommand; }
       }
 
+      public ICommand SelectRowCommand
+      {
+         get { return _selectRowCommand; }
+      }
+
       #endregion
 
       #region Private Methods
 
       private void Roll()
       {
+         if (_isRolling)
+         {
+            return;
+         }
+
          _rollWorker.RunWorkerAsync();
 
          //foreach (RandomTableRowViewModel rowView in _rows)
@@ -166,6 +182,22 @@ namespace CritCompendium.ViewModels.ObjectViewModels
          //}
       }
 
+      private void SelectRow(RandomTableRowViewModel rowView)
+      {
+         if (rowView != null)
+         {
+            bool isSelected = rowView.Selected;
+            _clearSelectedRows();
+            if (isSelected)
+            {
+               return;
+            }
+            rowView.Selected = !rowView.Selected;
+            RolledNumber = rowView.Min;
+            RolledValue = rowView.Value;
+         }
+      }
+
       private void CopyValue(RandomTableRowViewModel rowView)
       {
          if (rowView != null && !String.IsNullOrWhiteSpace(rowView.Value))
@@ -174,30 +206,37 @@ namespace CritCompendium.ViewModels.ObjectViewModels
          }
       }
 
+      private void _clearSelectedRows()
+      {
+         foreach (RandomTableRowViewModel rowView in _rows)
+         {
+            if (rowView.Selected == true)
+            {
+               rowView.Selected = false;
+            }
+         }
+         RolledNumber = 0;
+         RolledValue = "No Table Row Selected";
+      }
+
       private void _rollWorker_DoWork(object sender, DoWorkEventArgs e)
       {
+         _isRolling = true;
          int rolls = 0;
          while (++rolls < 10)
          {
-            foreach (RandomTableRowViewModel rowView in _rows)
-            {
-               if (rowView.Selected == true)
-               {
-                  rowView.Selected = false;
-                  break;
-               }
-            }
+            _clearSelectedRows();
 
             string dieString = !String.IsNullOrWhiteSpace(_randomTableModel.Die) ? _randomTableModel.Die.Replace("d", String.Empty) : "2";
             if (Int32.TryParse(dieString, out int die))
             {
-               _rolledValue = null;
-               _rolledNumber = _diceService.RandomNumber(1, die);
+               RolledValue = "No row selected";
+               RolledNumber = _diceService.RandomNumber(1, die);
                foreach (RandomTableRowViewModel rowView in _rows)
                {
                   if (_rolledNumber >= rowView.Min && _rolledNumber <= rowView.Max)
                   {
-                     _rolledValue = rowView.Value;
+                     RolledValue = rowView.Value;
                      rowView.Selected = true;
                      break;
                   }
@@ -206,6 +245,7 @@ namespace CritCompendium.ViewModels.ObjectViewModels
 
             Thread.Sleep(100);
          }
+         _isRolling = false;
       }
 
       #endregion

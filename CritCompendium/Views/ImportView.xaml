@@ -126,6 +126,7 @@
                <RowDefinition Height="Auto" />
                <RowDefinition Height="Auto" />
                <RowDefinition Height="Auto" />
+               <RowDefinition Height="Auto" />
             </Grid.RowDefinitions>
 
             <TextBlock Grid.Row="0"
@@ -276,10 +277,24 @@
                            Grid.Column="0"
                            Padding="5,5,0,5"
                            Foreground="{DynamicResource _primaryTextBrush}"
-                           Text="Spells" />
+                           Text="Random Tables" />
             <TextBlock Grid.Row="11"
                            Grid.Column="1"
                            Padding="0,5,0,5"
+                           Foreground="{DynamicResource _primaryTextBrush}"
+                           Text="{Binding TableCount, StringFormat='{}{0:N0}'}"
+                           TextAlignment="Center" />
+
+            <TextBlock Grid.Row="12"
+                           Grid.Column="0"
+                           Padding="5,5,0,5"
+                           Background="{DynamicResource _tableAlternateBackground}"
+                           Foreground="{DynamicResource _primaryTextBrush}"
+                           Text="Spells" />
+            <TextBlock Grid.Row="12"
+                           Grid.Column="1"
+                           Padding="0,5,0,5"
+                           Background="{DynamicResource _tableAlternateBackground}"
                            Foreground="{DynamicResource _primaryTextBrush}"
                            Text="{Binding SpellCount, StringFormat='{}{0:N0}'}"
                            TextAlignment="Center" />

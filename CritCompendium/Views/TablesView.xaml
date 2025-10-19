@@ -275,13 +275,16 @@
          </Border>
       </Grid>
 
-      <ContentControl Grid.Column="1"
-                      Margin="15,0,17,10"
+      <ScrollViewer Grid.Column="1"
+                    Visibility="{Binding IsEditingTable, Converter={StaticResource _invertBoolVisibilityConverter}}">
+         <ContentControl
                       Content="{Binding SelectedTable}"
+                      Margin="15,0,17,10"
                       ContentTemplate="{DynamicResource _tableDisplayTemplate}"
                       Style="{DynamicResource _emptyContentControlStyle}"
                       Tag="No Table Selected"
                       Visibility="{Binding IsEditingTable, Converter={StaticResource _invertBoolVisibilityConverter}}" />
+      </ScrollViewer>
 
       <Grid Grid.Column="1"
             Margin="15,0,0,0"

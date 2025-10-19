@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Windows.Input;
 using CritCompendiumInfrastructure.Models;
 
 namespace CritCompendium.ViewModels.ObjectViewModels
@@ -15,6 +16,8 @@ namespace CritCompendium.ViewModels.ObjectViewModels
       private int _dieMax;
       private bool _selected;
 
+      private readonly ICommand _toggleSelectedCommand;
+
       #endregion
 
       #region Constructor
@@ -29,6 +32,8 @@ namespace CritCompendium.ViewModels.ObjectViewModels
          _min = _rowModel.Min;
          _max = _rowModel.Max;
          _value = _rowModel.Value;
+
+         _toggleSelectedCommand = new RelayCommand(obj => true, obj => ToggleSelected());
       }
 
       #endregion
@@ -121,6 +126,18 @@ namespace CritCompendium.ViewModels.ObjectViewModels
       {
          get { return _selected; }
          set { Set(ref _selected, value); }
+      }
+
+      public ICommand ToggleSelectedCommand
+      {
+         get { return _toggleSelectedCommand; }
+      }
+      #endregion
+
+      #region Private Methods
+      private void ToggleSelected()
+      {
+         Selected = !Selected;
       }
 
       #endregion

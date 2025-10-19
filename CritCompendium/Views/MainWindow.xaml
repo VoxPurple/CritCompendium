@@ -548,7 +548,7 @@
                         </TextBlock.InputBindings>
                      </TextBlock>
 
-                     <!--<Rectangle Grid.Row="18"
+                    <Rectangle Grid.Row="18"
                                        Grid.Column="1"
                                        Style="{DynamicResource _separatorRectangleStyle}" />
 
@@ -563,9 +563,9 @@
                                 <TextBlock.InputBindings>
                                     <MouseBinding Command="{Binding ImportCommand}" MouseAction="LeftClick" />
                                 </TextBlock.InputBindings>
-                            </TextBlock>-->
+                            </TextBlock>
 
-                     <!--<Grid Grid.Row="18"
+                     <Grid Grid.Row="24"
                                   Grid.Column="1"
                                   Margin="0,0,8,10"
                                   VerticalAlignment="Bottom">
@@ -585,7 +585,7 @@
                                            Height="20"
                                            HorizontalAlignment="Center"
                                            Opacity="0.8"
-                                           Source="/CriticalCompendium;component/Resources/Images/patreon_white_64.png" />
+                                           Source="/CritCompendium;component/Resources/Images/patreon_white_64.png" />
                                 </Button>
 
                                 <Button Grid.Column="1"
@@ -598,7 +598,7 @@
                                            Height="20"
                                            HorizontalAlignment="Center"
                                            Opacity="0.8"
-                                           Source="/CriticalCompendium;component/Resources/Images/twitter_white_64.png" />
+                                           Source="/CritCompendium;component/Resources/Images/twitter_white_64.png" />
                                 </Button>
 
                                 <Button Grid.Column="2"
@@ -611,9 +611,9 @@
                                            Height="20"
                                            HorizontalAlignment="Center"
                                            Opacity="0.8"
-                                           Source="/CriticalCompendium;component/Resources/Images/reddit_white_64.png" />
+                                           Source="/CritCompendium;component/Resources/Images/reddit_white_64.png" />
                                 </Button>
-                            </Grid>-->
+                            </Grid>
                   </Grid>
                </ScrollViewer>
 

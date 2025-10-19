@@ -27,6 +27,7 @@ namespace CritCompendium.ViewModels.ObjectViewModels
       private string _header;
 
       private ICommand _addRowCommand;
+      private ICommand _addAllRowCommand;
       private ICommand _deleteRowCommand;
 
       #endregion
@@ -60,6 +61,7 @@ namespace CritCompendium.ViewModels.ObjectViewModels
          _header = _randomTableModel.Header;
 
          _addRowCommand = new RelayCommand(obj => true, obj => AddRow());
+         _addAllRowCommand = new RelayCommand(obj => true, obj => AddAllRows());
          _deleteRowCommand = new RelayCommand(obj => true, obj => DeleteRow(obj as RandomTableRowViewModel));
 
          SetRowDieMaximums();
@@ -170,6 +172,11 @@ namespace CritCompendium.ViewModels.ObjectViewModels
          get { return _addRowCommand; }
       }
 
+      public ICommand AddAllRowsCommand
+      {
+         get { return _addAllRowCommand; }
+      }
+
       /// <summary>
       /// Gets delete row command
       /// </summary>
@@ -225,6 +232,29 @@ namespace CritCompendium.ViewModels.ObjectViewModels
          randomTableRowViewModel.PropertyChanged += Row_PropertyChanged;
 
          _rows.Add(randomTableRowViewModel);
+
+         OnPropertyChanged(nameof(Rows));
+      }
+
+      private void AddAllRows()
+      {
+         // Add remaining rows to fill up die
+
+         int maxRows = Int32.TryParse(_die.Replace("d", String.Empty), out int die) ? die : 0;
+         int remainingRows = maxRows - _rows.Count;
+         for(int i = 0; i < remainingRows; ++i)
+         {
+            RandomTableRowModel rowModel = new RandomTableRowModel();
+            _randomTableModel.Rows.Add(rowModel);
+
+            RandomTableRowViewModel randomTableRowViewModel = new RandomTableRowViewModel(rowModel);
+            randomTableRowViewModel.DieMax = maxRows;
+            randomTableRowViewModel.Min = _rows.Any() ? _rows.Last().Max + 1 : 0;
+            randomTableRowViewModel.Max = randomTableRowViewModel.Min;
+
+            randomTableRowViewModel.PropertyChanged += Row_PropertyChanged;
+            _rows.Add(randomTableRowViewModel);
+         }
 
          OnPropertyChanged(nameof(Rows));
       }
