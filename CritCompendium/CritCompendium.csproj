@@ -1005,5 +1005,11 @@
   <ItemGroup>
     <Resource Include="Resources\Images\banner_768.png" />
   </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\Images\add_all_32.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\Images\LightTheme\add_all_32.png" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

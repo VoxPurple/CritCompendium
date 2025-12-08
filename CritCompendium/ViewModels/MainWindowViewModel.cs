@@ -5,6 +5,7 @@ using CritCompendium.Business;
 using CritCompendium.Views;
 using CritCompendiumInfrastructure.Persistence;
 using CritCompendiumInfrastructure.Business;
+using CritCompendium.ViewModels.ObjectViewModels;
 
 namespace CritCompendium.ViewModels
 {
@@ -734,6 +735,10 @@ namespace CritCompendium.ViewModels
             else if (_mainView.DataContext is RacesViewModel racesViewModel)
             {
                racesViewModel.Search();
+            }
+            else if (_mainView.DataContext is TablesViewModel randomTablesViewModel)
+            {
+               randomTablesViewModel.Search();
             }
             else if (_mainView.DataContext is SpellsViewModel spellsViewModel)
             {

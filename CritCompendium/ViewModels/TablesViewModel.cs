@@ -26,6 +26,7 @@ namespace CritCompendium.ViewModels
       private readonly StringService _stringService;
       private readonly DialogService _dialogService;
       private readonly XMLImporter _xmlImporter;
+      private readonly XMLExporter _xmlExporter;
       private readonly DocumentService _documentService;
       private readonly DataManager _dataManager;
       private readonly ObservableCollection<ListItemViewModel<RandomTableModel>> _tables = new ObservableCollection<ListItemViewModel<RandomTableModel>>();
@@ -53,7 +54,7 @@ namespace CritCompendium.ViewModels
       /// Creates an instance of <see cref="TablesViewModel"/>
       /// </summary>
       public TablesViewModel(Compendium compendium, TableSearchService tableSearchService, TableSearchInput tableSearchInput,
-          StringService stringService, DialogService dialogService, XMLImporter xmlImporter, DocumentService documentService, DataManager dataManager)
+          StringService stringService, DialogService dialogService, XMLImporter xmlImporter, XMLExporter xmlExporter, DocumentService documentService, DataManager dataManager)
       {
          _compendium = compendium;
          _tableSearchService = tableSearchService;
@@ -61,6 +62,7 @@ namespace CritCompendium.ViewModels
          _stringService = stringService;
          _dialogService = dialogService;
          _xmlImporter = xmlImporter;
+         _xmlExporter = xmlExporter;
          _documentService = documentService;
          _dataManager = dataManager;
 
@@ -320,6 +322,9 @@ namespace CritCompendium.ViewModels
                table.IsSelected = true;
             }
          }
+
+         OnPropertyChanged(nameof(TagOptions));
+         OnPropertyChanged(nameof(SelectedTagOption));
       }
 
       #endregion
@@ -665,7 +670,7 @@ namespace CritCompendium.ViewModels
       private void ExportTable(RandomTableViewModel tableViewModel)
       {
          Microsoft.Win32.SaveFileDialog saveFileDialog = new Microsoft.Win32.SaveFileDialog();
-         saveFileDialog.Filter = "Table Archive|*.ccea|Word Document|*.docx";
+         saveFileDialog.Filter = "Table Archive|*.ccta|XML Document|*.xml";
          saveFileDialog.Title = "Save Table";
          saveFileDialog.FileName = tableViewModel.Name;
 
@@ -675,14 +680,15 @@ namespace CritCompendium.ViewModels
             {
                string ext = Path.GetExtension(saveFileDialog.FileName);
 
-               if (ext == ".ccaa")
+               if (ext == ".ccta")
                {
                   byte[] bytes = _dataManager.CreateTableArchive(tableViewModel.RandomTableModel);
                   File.WriteAllBytes(saveFileDialog.FileName, bytes);
                }
-               else if (ext == "*.docx")
+               else if (ext == ".xml")
                {
-                  //_documentService.CreateWordDoc(saveFileDialog.FileName, tableViewModel);
+                  string xml = _xmlExporter.FormatXMLWithHeader(_xmlExporter.GetXML(tableViewModel.RandomTableModel));
+                  File.WriteAllText(saveFileDialog.FileName, xml);
                }
                else
                {

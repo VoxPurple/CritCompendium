@@ -150,6 +150,34 @@ namespace CritCompendiumInfrastructure.Persistence
          return xml;
       }
 
+      public string GetXML(RandomTableModel model)
+      {
+         string xml = String.Empty;
+
+         if (model != null)
+         {
+            xml += $"<randomTable><id>{model.Id}</id><name>{model.Name}</name><die>{model.Die}</die><header>{model.Header}</header>";
+
+            xml += "<rows>";
+            foreach (RandomTableRowModel row in model.Rows)
+            {
+               xml += $"<row><min>{row.Min}</min><max>{row.Max}</max><value>{row.Value}</value></row>";
+            }
+            xml += "</rows>";
+
+            xml += "<tags>";
+            foreach (string tag in model.Tags)
+            {
+               xml += $"<tag>{tag}</tag>";
+            }
+            xml += "</tags>";
+
+            xml += "</randomTable>";
+         }
+
+         return xml;
+      }
+
       /// <summary>
       /// Gets formatted xml of object
       /// </summary>

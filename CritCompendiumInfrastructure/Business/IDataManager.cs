@@ -243,7 +243,7 @@ namespace CritCompendiumInfrastructure.Business
 
       #endregion
 
-      #region Feates
+      #region Feats
 
       /// <summary>
       /// Saves feats to the default save file location

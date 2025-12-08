@@ -22,6 +22,7 @@ namespace CritCompendium
       private static readonly string _dataSaveFileName = "cc.data";
       private static readonly string _characterSaveFileName = "characters.ccc";
       private static readonly string _encountersSaveFileName = "encounters.cce";
+      private static readonly string _tablesSaveFileName = "tables.ccta";
       private static readonly string _backgroundsSaveFileName = "backgrounds.xml";
       private static readonly string _classesSaveFileName = "classes.xml";
       private static readonly string _conditionsSaveFileName = "conditions.xml";
@@ -81,6 +82,8 @@ namespace CritCompendium
       #endregion
 
       #region Public Methods
+
+      #region Characters
 
       /// <summary>
       /// Saves characters to the default save file location
@@ -354,6 +357,9 @@ namespace CritCompendium
          return character;
       }
 
+      #endregion
+
+      #region Adventures
       /// <summary>
       /// Saves adventures to the default save file location
       /// </summary>
@@ -394,6 +400,10 @@ namespace CritCompendium
          return null;
       }
 
+      #endregion
+
+      #region Encounters
+
       /// <summary>
       /// Saves encounters to the default save file location
       /// </summary>
@@ -407,7 +417,7 @@ namespace CritCompendium
       }
 
       /// <summary>
-      /// Gets character bytes
+      /// Gets encounter bytes
       /// </summary>
       public byte[] GetEncounterBytes(EncounterModel encounter)
       {
@@ -418,7 +428,7 @@ namespace CritCompendium
       }
 
       /// <summary>
-      /// Creates a character archive from the character model
+      /// Creates an encounter archive from the encounter model
       /// </summary>
       public byte[] CreateEncounterArchive(EncounterModel encounterModel)
       {
@@ -537,7 +547,7 @@ namespace CritCompendium
       }
 
       /// <summary>
-      /// Gets a character from the byte array using selected resources
+      /// Gets an encounter from the byte array using selected resources
       /// </summary>
       public EncounterModel GetEncounter(byte[] encounterBytes, IEnumerable<CharacterModel> characters, IEnumerable<ConditionModel> conditions, IEnumerable<MonsterModel> monsters)
       {
@@ -546,6 +556,10 @@ namespace CritCompendium
          encounter = encounterPersister.GetEncounters(encounterBytes, characters, conditions, monsters).First();
          return encounter;
       }
+
+      #endregion
+
+      #region Locations
 
       /// <summary>
       /// Saves locations to the default save file location
@@ -587,6 +601,10 @@ namespace CritCompendium
          return null;
       }
 
+      #endregion
+
+      #region NPCs
+
       /// <summary>
       /// Saves npcs to the default save file location
       /// </summary>
@@ -627,19 +645,30 @@ namespace CritCompendium
          return null;
       }
 
+      #endregion
+
+      #region Tables
       /// <summary>
       /// Saves tables to the default save file location
       /// </summary>
       public void SaveTables(IEnumerable<RandomTableModel> randomTables)
       {
+         string path = Path.Combine(_saveDataFolder, _tablesSaveFileName);
+         IRandomTablePersister tablePersister = DependencyResolver.Resolve<Version1.RandomTablePersister>();
 
+         byte[] tableBytes = tablePersister.GetBytes(randomTables);
+         File.WriteAllBytes(path, tableBytes);
       }
+
       /// <summary>
       /// Gets table bytes
       /// </summary>
       public byte[] GetTableBytes(RandomTableModel randomTableModel)
       {
-         return null;
+         byte[] tableBytes = null;
+         IRandomTablePersister tablePersister = DependencyResolver.Resolve<Version1.RandomTablePersister>();
+         tableBytes = tablePersister.GetBytes(new RandomTableModel[] { randomTableModel });
+         return tableBytes;
       }
 
       /// <summary>
@@ -647,7 +676,23 @@ namespace CritCompendium
       /// </summary>
       public byte[] CreateTableArchive(RandomTableModel randomTableModel)
       {
-         return null;
+         byte[] bytes = null;
+
+         using (MemoryStream stream = new MemoryStream())
+         {
+            using (ZipArchive archive = new ZipArchive(stream, ZipArchiveMode.Create))
+            {
+               ZipArchiveEntry entry = archive.CreateEntry(_tablesSaveFileName);
+
+               using (BinaryWriter writer = new BinaryWriter(entry.Open()))
+               {
+                  byte[] tableBytes = GetTableBytes(randomTableModel);
+                  writer.Write(tableBytes);
+               }
+            }
+            bytes = stream.ToArray();
+         }  
+         return bytes;
       }
 
       /// <summary>
@@ -655,7 +700,27 @@ namespace CritCompendium
       /// </summary>
       public IEnumerable<RandomTableModel> LoadTables()
       {
-         return Enumerable.Empty<RandomTableModel>();
+         List<RandomTableModel> randomTables = new List<RandomTableModel>();
+
+         string path = Path.Combine(_saveDataFolder, _tablesSaveFileName);
+
+         if (File.Exists(path))
+         {
+            IRandomTablePersister randomTablePersister = null;
+
+            byte[] tableBytes = File.ReadAllBytes(path);
+            int version = BitConverter.ToInt32(tableBytes.Take(4).ToArray(), 0);
+            if (version == 1)
+            {
+               randomTablePersister = DependencyResolver.Resolve<Version1.RandomTablePersister>();
+            }
+
+            if (randomTablePersister != null)
+            {
+               randomTables = randomTablePersister.GetRandomTables(tableBytes).ToList();
+            }
+         }
+         return randomTables;
       }
 
       /// <summary>
@@ -663,8 +728,15 @@ namespace CritCompendium
       /// </summary>
       public RandomTableModel GetTable(byte[] tableBytes)
       {
-         return null;
+         RandomTableModel randomTable = null;
+         IRandomTablePersister randomTablePersister = DependencyResolver.Resolve<Version1.RandomTablePersister>();
+         randomTable = randomTablePersister.GetRandomTables(tableBytes).First();
+         return randomTable;
       }
+
+      #endregion
+
+      #region Backgrounds
 
       /// <summary>
       /// Saves backgrounds to the default save file location
@@ -698,6 +770,10 @@ namespace CritCompendium
          return backgrounds;
       }
 
+      #endregion
+
+      #region Classes
+
       /// <summary>
       /// Saves classes to the default save file location
       /// </summary>
@@ -729,6 +805,10 @@ namespace CritCompendium
          }
          return classes;
       }
+
+      #endregion
+
+      #region Conditions
 
       /// <summary>
       /// Saves conditions to the default save file location
@@ -762,6 +842,10 @@ namespace CritCompendium
          return conditions;
       }
 
+      #endregion
+
+      #region Feats
+
       /// <summary>
       /// Saves feats to the default save file location
       /// </summary>
@@ -794,6 +878,10 @@ namespace CritCompendium
          return feats;
       }
 
+      #endregion
+
+      #region Items
+
       /// <summary>
       /// Saves items to the default save file location
       /// </summary>
@@ -825,6 +913,10 @@ namespace CritCompendium
          }
          return items;
       }
+
+      #endregion
+
+      #region Languages
 
       /// <summary>
       /// Saves languages to the default save file location
@@ -861,6 +953,10 @@ namespace CritCompendium
          return languages;
       }
 
+      #endregion
+
+      #region Monsters
+
       /// <summary>
       /// Saves monsters to the default save file location
       /// </summary>
@@ -892,6 +988,10 @@ namespace CritCompendium
          }
          return monsters;
       }
+
+      #endregion
+
+      #region Races
 
       /// <summary>
       /// Saves races to the default save file location
@@ -925,6 +1025,10 @@ namespace CritCompendium
          return races;
       }
 
+      #endregion
+
+      #region Spells
+
       /// <summary>
       /// Saves spells to the default save file location
       /// </summary>
@@ -957,6 +1061,10 @@ namespace CritCompendium
          return spells;
       }
 
+      #endregion
+
+      #region Theme
+
       /// <summary>
       /// Saves the theme
       /// </summary>
@@ -982,6 +1090,10 @@ namespace CritCompendium
          return bytes;
       }
 
+      #endregion
+
+      #region Launch Data
+
       /// <summary>
       /// Saves the launch information data file
       /// </summary>
@@ -1001,6 +1113,8 @@ namespace CritCompendium
 
          File.WriteAllBytes(dataPath, bytes.ToArray());
       }
+
+      #endregion
 
       #endregion
 

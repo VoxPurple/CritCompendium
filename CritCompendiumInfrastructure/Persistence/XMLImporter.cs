@@ -137,6 +137,8 @@ namespace CritCompendiumInfrastructure.Persistence
          }
       }
 
+      #region Backgrounds
+
       /// <summary>
       /// Reads backgrounds
       /// </summary>
@@ -252,6 +254,10 @@ namespace CritCompendiumInfrastructure.Persistence
 
          return backgroundModel;
       }
+
+      #endregion
+
+      #region Classes
 
       /// <summary>
       /// Reads classes
@@ -494,6 +500,10 @@ namespace CritCompendiumInfrastructure.Persistence
          return classModel;
       }
 
+      #endregion
+
+      #region Conditions
+
       /// <summary>
       /// Reads conditions
       /// </summary>
@@ -638,6 +648,10 @@ namespace CritCompendiumInfrastructure.Persistence
          return conditionModel;
       }
 
+      #endregion
+
+      #region Feats
+
       /// <summary>
       /// Reads feats
       /// </summary>
@@ -746,6 +760,10 @@ namespace CritCompendiumInfrastructure.Persistence
 
          return featModel;
       }
+
+      #endregion
+
+      #region Items
 
       /// <summary>
       /// Reads items
@@ -991,6 +1009,10 @@ namespace CritCompendiumInfrastructure.Persistence
 
          return itemModel;
       }
+
+      #endregion
+
+      #region Monsters
 
       /// <summary>
       /// Reads monsters
@@ -1412,6 +1434,10 @@ namespace CritCompendiumInfrastructure.Persistence
          return monsterModel;
       }
 
+      #endregion
+
+      #region Races
+
       /// <summary>
       /// Reads races
       /// </summary>
@@ -1591,6 +1617,135 @@ namespace CritCompendiumInfrastructure.Persistence
          return raceModel;
       }
 
+      #endregion
+
+      #region Random Tables
+
+      public List<RandomTableModel> ReadRandomTables()
+      {
+         List<RandomTableModel> randomTables = new List<RandomTableModel>();
+
+         if (_doc.DocumentElement.Name.ToLower() == "randomtable")
+         {
+            RandomTableModel randomTable = GetRandomTable(_doc.DocumentElement);
+            if (randomTable != null)
+            {
+               randomTables.Add(randomTable);
+            }
+         }
+         else
+         {
+            foreach (XmlNode randomTableNode in _doc.DocumentElement.SelectNodes("descendant::randomTable"))
+            {
+               RandomTableModel randomTable = GetRandomTable(randomTableNode);
+               if (randomTable != null)
+               {
+                  randomTables.Add(randomTable);
+               }
+            }
+         }
+
+         return randomTables.OrderBy(x => x.Name).ToList();
+      }
+
+      public List<RandomTableModel> ReadRandomTables(string xml)
+      {
+         List<RandomTableModel> randomTables = new List<RandomTableModel>();
+
+         XmlDocument doc = new XmlDocument();
+         doc.LoadXml(xml);
+
+         foreach (XmlNode node in doc.DocumentElement.SelectNodes("descendant::randomTable"))
+         {
+            RandomTableModel randomTable = GetRandomTable(node);
+            if (randomTable != null)
+            {
+               randomTables.Add(randomTable);
+            }
+         }
+
+         return randomTables.OrderBy(x => x.Name).ToList();
+      }
+
+      public RandomTableModel GetRandomTable(string xml)
+      {
+         string enclosedXML = "<randomTable>" + xml + "</randomTable>";
+         XmlDocument document = new XmlDocument();
+         document.LoadXml(enclosedXML);
+         return GetRandomTable(document.SelectSingleNode("randomTable"));
+      }
+
+      public RandomTableModel GetRandomTable(XmlNode randomTableNode)
+      {
+         RandomTableModel randomTableModel = null;
+
+         XmlNode idNode = randomTableNode["id"];
+         XmlNode nameNode = randomTableNode["name"];
+         XmlNode dieNode = randomTableNode["die"];
+         XmlNode headerNode = randomTableNode["header"];
+         // Grab the Child nodes for "tags" and "rows"
+         XmlNode tagNodes = randomTableNode["tags"];
+         XmlNode rowsNode = randomTableNode["rows"];
+
+         // Check for the "required" nodes are populated
+         if(nameNode != null && dieNode != null && rowsNode.ChildNodes.Count > 0)
+         {
+            randomTableModel = new RandomTableModel();
+
+            randomTableModel.Name = nameNode.InnerText;
+            randomTableModel.Die = dieNode.InnerText;
+         
+            randomTableModel.Header = headerNode != null ? headerNode.InnerText : String.Empty;
+
+            if (idNode != null)
+            {
+               if (Guid.TryParse(idNode.InnerText, out Guid id))
+               {
+                  randomTableModel.Id = id;
+               }
+               randomTableNode.RemoveChild(idNode);
+            }
+
+            if (tagNodes != null)
+            {
+               foreach (XmlNode tag in tagNodes.SelectNodes("tag"))
+               {
+                  if (!String.IsNullOrWhiteSpace(tag.InnerText))
+                  {
+                     randomTableModel.Tags.Add(tag.InnerText);
+                  }
+               }
+            }
+
+            foreach (XmlNode rowNode in rowsNode.SelectNodes("row"))
+            {
+               XmlNode minNode = rowNode["min"];
+               XmlNode maxNode = rowNode["max"];
+               XmlNode valueNode = rowNode["value"];
+               if (minNode != null && maxNode != null)
+               {
+                  RandomTableRowModel randomTableRowModel = new RandomTableRowModel();
+                  if (Int32.TryParse(minNode.InnerText, out int min))
+                  {
+                     randomTableRowModel.Min = min;
+                  }
+                  if (Int32.TryParse(maxNode.InnerText, out int max))
+                  {
+                     randomTableRowModel.Max = max;
+                  }
+                  randomTableRowModel.Value = valueNode != null ? valueNode.InnerText : String.Empty;
+                  randomTableModel.Rows.Add(randomTableRowModel);
+               }
+            }
+         }
+
+         return randomTableModel;
+      }
+
+      #endregion
+
+      #region Spells
+
       /// <summary>
       /// Reads spells
       /// </summary>
@@ -1761,6 +1916,8 @@ namespace CritCompendiumInfrastructure.Persistence
 
          return spellModel;
       }
+
+      #endregion
 
       #endregion
 

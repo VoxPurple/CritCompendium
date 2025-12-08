@@ -337,7 +337,8 @@ namespace CritCompendiumInfrastructure.Business
       }
 
       public void SetCompendium(IEnumerable<BackgroundModel> backgrounds, IEnumerable<ClassModel> classes, IEnumerable<ConditionModel> conditions, IEnumerable<FeatModel> feats,
-          IEnumerable<ItemModel> items, IEnumerable<LanguageModel> languages, IEnumerable<MonsterModel> monsters, IEnumerable<RaceModel> races, IEnumerable<SpellModel> spells)
+          IEnumerable<ItemModel> items, IEnumerable<LanguageModel> languages, IEnumerable<MonsterModel> monsters, IEnumerable<RaceModel> races, IEnumerable<RandomTableModel> tables, 
+          IEnumerable<SpellModel> spells)
       {
          _backgrounds = backgrounds.ToList();
          _classes = classes.ToList();
@@ -347,6 +348,7 @@ namespace CritCompendiumInfrastructure.Business
          _languages = languages.ToList();
          _monsters = monsters.ToList();
          _races = races.ToList();
+         _tables = tables.ToList();
          _spells = spells.ToList();
       }
 
@@ -615,7 +617,7 @@ namespace CritCompendiumInfrastructure.Business
          {
             _tables.Add(randomTableModel);
 
-            //UpdateTags();
+            UpdateTags();
          }
       }
 

@@ -25,6 +25,7 @@
    <BitmapImage x:Key="_exportImage" UriSource="/CritCompendium;component/Resources/Images/export_32.png" />
    <BitmapImage x:Key="_importImage" UriSource="/CritCompendium;component/Resources/Images/import_32.png" />
    <BitmapImage x:Key="_addImage" UriSource="/CritCompendium;component/Resources/Images/add_32.png" />
+   <BitmapImage x:Key="_addAllImage" UriSource="/CritCompendium;component/Resources/Images/add_all_32.png" />
    <BitmapImage x:Key="_removeImage" UriSource="/CritCompendium;component/Resources/Images/clear_32.png" />
    <BitmapImage x:Key="_copyImage" UriSource="/CritCompendium;component/Resources/Images/copy_32.png" />
    <BitmapImage x:Key="_deleteImage" UriSource="/CritCompendium;component/Resources/Images/delete_32.png" />

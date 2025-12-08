@@ -26,6 +26,7 @@ namespace CritCompendium.ViewModels
       private string _filePath;
       private List<byte[]> _characters = new List<byte[]>();
       private List<byte[]> _encounters = new List<byte[]>();
+      private List<byte[]> _b_randomTables = new List<byte[]>();
       private List<BackgroundModel> _backgrounds = new List<BackgroundModel>();
       private List<ClassModel> _classes = new List<ClassModel>();
       private List<ConditionModel> _conditions = new List<ConditionModel>();
@@ -34,6 +35,7 @@ namespace CritCompendium.ViewModels
       private List<LanguageModel> _languages = new List<LanguageModel>();
       private List<MonsterModel> _monsters = new List<MonsterModel>();
       private List<RaceModel> _races = new List<RaceModel>();
+      private List<RandomTableModel> _randomTables = new List<RandomTableModel>();
       private List<SpellModel> _spells = new List<SpellModel>();
       private bool _addAllEntries;
       private bool _skipDuplicateEntries;
@@ -87,6 +89,14 @@ namespace CritCompendium.ViewModels
       public int EncounterCount
       {
          get { return _encounters.Count; }
+      }
+
+      /// <summary>
+      /// Gets Random Table count
+      /// </summary>
+      public int TableCount
+      {
+         get { return _randomTables.Count + _b_randomTables.Count; }
       }
 
       /// <summary>
@@ -210,12 +220,14 @@ namespace CritCompendium.ViewModels
       private void Browse()
       {
          OpenFileDialog fileDialog = new OpenFileDialog();
-         fileDialog.Filter = "Compendium Files|*.xml;*.ccca;*.ccea|XML Files|*.xml|Character Archives|*.ccca|Encounter Archives|*.ccea";
+         fileDialog.Filter = "Compendium Files|*.xml;*.ccca;*.ccea;*.ccta|XML Files|*.xml|Character Archives|*.ccca|Encounter Archives|*.ccea|Table Archives|*.ccta";
 
          if (fileDialog.ShowDialog() == true)
          {
             _characters.Clear();
             _encounters.Clear();
+            _randomTables.Clear();
+            _b_randomTables.Clear();
             _backgrounds.Clear();
             _classes.Clear();
             _conditions.Clear();
@@ -242,6 +254,10 @@ namespace CritCompendium.ViewModels
                {
                   ReadEncounterArchive(fileDialog.FileName);
                }
+               else if (ext == ".ccta")
+               {
+                  ReadTableArchive(fileDialog.FileName);
+               }
                else
                {
                   _dialogService.ShowConfirmationDialog("File Error", "The selected file type is unsupported.", "OK", null, null);
@@ -256,6 +272,22 @@ namespace CritCompendium.ViewModels
 
             OnPropertyChanged(nameof(FilePath));
          }
+      }
+
+      private void UpdateCountProperties()
+      {
+         OnPropertyChanged(nameof(CharacterCount));
+         OnPropertyChanged(nameof(EncounterCount));
+         OnPropertyChanged(nameof(BackgroundCount));
+         OnPropertyChanged(nameof(ClassCount));
+         OnPropertyChanged(nameof(ConditionCount));
+         OnPropertyChanged(nameof(FeatCount));
+         OnPropertyChanged(nameof(ItemCount));
+         OnPropertyChanged(nameof(LanguageCount));
+         OnPropertyChanged(nameof(MonsterCount));
+         OnPropertyChanged(nameof(RaceCount));
+         OnPropertyChanged(nameof(TableCount));
+         OnPropertyChanged(nameof(SpellCount));
       }
 
       private void RestoreDefaultCompendium()
@@ -397,7 +429,14 @@ namespace CritCompendium.ViewModels
                }
             }
 
-            _compendium.SetCompendium(backgrounds, classes, conditions, feats, items, languages, monsters, races, spells);
+            /* If RandomTables require any additional entries to be saved - this is where it should occur on a Compendium reset
+             * foreach (RandomTableModel randomTable in _compendium.RandomTables)
+             * {
+             *    // Iterate through attributes as necessary - Tags?
+             * }
+             */
+
+            _compendium.SetCompendium(backgrounds, classes, conditions, feats, items, languages, monsters, races, _compendium.Tables, spells);
 
             _compendium.SaveBackgrounds();
             _compendium.SaveClasses();
@@ -428,19 +467,12 @@ namespace CritCompendium.ViewModels
          _items = xmlImporter.ReadItems();
          _monsters = xmlImporter.ReadMonsters();
          _races = xmlImporter.ReadRaces();
+         _randomTables = xmlImporter.ReadRandomTables();
          _spells = xmlImporter.ReadSpells();
 
          _languages = xmlImporter.LanguagesFound;
 
-         OnPropertyChanged(nameof(BackgroundCount));
-         OnPropertyChanged(nameof(ClassCount));
-         OnPropertyChanged(nameof(ConditionCount));
-         OnPropertyChanged(nameof(FeatCount));
-         OnPropertyChanged(nameof(ItemCount));
-         OnPropertyChanged(nameof(LanguageCount));
-         OnPropertyChanged(nameof(MonsterCount));
-         OnPropertyChanged(nameof(RaceCount));
-         OnPropertyChanged(nameof(SpellCount));
+         UpdateCountProperties();
       }
 
       private void ReadCharacterArchive(string fileLocation)
@@ -600,17 +632,29 @@ namespace CritCompendium.ViewModels
             }
          }
 
-         OnPropertyChanged(nameof(CharacterCount));
-         OnPropertyChanged(nameof(EncounterCount));
-         OnPropertyChanged(nameof(BackgroundCount));
-         OnPropertyChanged(nameof(ClassCount));
-         OnPropertyChanged(nameof(ConditionCount));
-         OnPropertyChanged(nameof(FeatCount));
-         OnPropertyChanged(nameof(ItemCount));
-         OnPropertyChanged(nameof(LanguageCount));
-         OnPropertyChanged(nameof(MonsterCount));
-         OnPropertyChanged(nameof(RaceCount));
-         OnPropertyChanged(nameof(SpellCount));
+         UpdateCountProperties();
+      }
+
+      private void ReadTableArchive(string fileLocation)
+      {
+         using (FileStream fileStream = File.Open(fileLocation, FileMode.Open))
+         {
+            using (ZipArchive archive = new ZipArchive(fileStream, ZipArchiveMode.Read))
+            {
+               ZipArchiveEntry tableEntry = archive.GetEntry("tables.ccta");
+
+               using (MemoryStream memoryStream = new MemoryStream())
+               {
+                  using (Stream stream = tableEntry.Open())
+                  {
+                     stream.CopyTo(memoryStream);
+                     _b_randomTables.Add(memoryStream.ToArray());
+                  }
+               }
+            }
+         }
+
+         UpdateCountProperties();
       }
 
       private void ImportCharacters()
@@ -675,6 +719,65 @@ namespace CritCompendium.ViewModels
                {
                   encounterModel.Id = existing.Id;
                   _compendium.UpdateEncounter(encounterModel);
+               }
+            }
+         }
+      }
+
+      private void ImportRandomTables()
+      {
+         // Import the Byte Array Tables (.ccta Import)
+         foreach (byte[] randomTableBytes in _b_randomTables)
+         {
+            RandomTableModel randomTableModel = _dataManager.GetTable(randomTableBytes);
+            if (_addAllEntries)
+            {
+               _compendium.AddTable(randomTableModel);
+            }
+            else if (_skipDuplicateEntries)
+            {
+               if (!_compendium.Tables.Any(x => x.Name.Equals(randomTableModel.Name, StringComparison.CurrentCultureIgnoreCase)))
+               {
+                  _compendium.AddTable(randomTableModel);
+               }
+            }
+            else if (_replaceExistingEntries)
+            {
+               RandomTableModel existing = _compendium.Tables.FirstOrDefault(x => x.Name.Equals(randomTableModel.Name, StringComparison.CurrentCultureIgnoreCase));
+               if (existing == null)
+               {
+                  _compendium.AddTable(randomTableModel);
+               }
+               else
+               {
+                  _compendium.UpdateTable(randomTableModel);
+               }
+            }
+         }
+         // Import the XML Tables (.xml Import)
+         foreach (RandomTableModel table in _randomTables)
+         {
+            if (_addAllEntries)
+            {
+               _compendium.AddTable(table);
+            }
+            else if (_skipDuplicateEntries)
+            {
+               if (!_compendium.Tables.Any(x => x.Name.Equals(table.Name, StringComparison.CurrentCultureIgnoreCase)))
+               {
+                  _compendium.AddTable(table);
+               }
+            }
+            else if (_replaceExistingEntries)
+            {
+               RandomTableModel existing = _compendium.Tables.FirstOrDefault(x => x.Name.Equals(table.Name, StringComparison.CurrentCultureIgnoreCase));
+               if (existing == null)
+               {
+                  _compendium.AddTable(table);
+               }
+               else
+               {
+                  _compendium.UpdateTable(table);
                }
             }
          }
@@ -1001,6 +1104,11 @@ namespace CritCompendium.ViewModels
          {
             ImportEncounters();
             _compendium.SaveEncounters();
+         }
+         if (_randomTables.Any() || _b_randomTables.Any())
+         {
+            ImportRandomTables();
+            _compendium.SaveTables();
          }
 
          _compendium.NotifyImportComplete();
