@@ -732,6 +732,10 @@ namespace CritCompendium.ViewModels
             {
                monstersViewModel.Search();
             }
+            else if (_mainView.DataContext is NPCsViewModel npcsViewModel)
+            {
+               npcsViewModel.Search();
+            }
             else if (_mainView.DataContext is RacesViewModel racesViewModel)
             {
                racesViewModel.Search();

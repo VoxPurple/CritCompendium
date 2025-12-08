@@ -1,7 +1,8 @@
-﻿using System;
+﻿using CritCompendiumInfrastructure.Enums;
+using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
-using CritCompendiumInfrastructure.Enums;
 
 namespace CritCompendiumInfrastructure.Business.Search.Input
 {
@@ -12,7 +13,7 @@ namespace CritCompendiumInfrastructure.Business.Search.Input
       private readonly Compendium _compendium;
 
       private readonly List<KeyValuePair<NPCSortOption, string>> _sortOptions = new List<KeyValuePair<NPCSortOption, string>>();
-      private List<KeyValuePair<string, string>> _tagOptions = new List<KeyValuePair<string, string>>();
+      private ObservableCollection<KeyValuePair<string, string>> _tagOptions = new ObservableCollection<KeyValuePair<string, string>>();
 
       private string _searchText;
       private bool _sortAndFiltersExpanded;
@@ -36,6 +37,8 @@ namespace CritCompendiumInfrastructure.Business.Search.Input
          _tag = _tagOptions[0];
 
          Reset();
+
+         _compendium.TagsChanged += _compendium_TagsChanged;
       }
 
       #endregion
@@ -83,12 +86,29 @@ namespace CritCompendiumInfrastructure.Business.Search.Input
       }
 
       /// <summary>
+      /// Gets sort options
+      /// </summary>
+      public IEnumerable<KeyValuePair<NPCSortOption, string>> SortOptions
+      {
+         get { return _sortOptions; }
+      }
+
+      /// <summary>
       /// Gets or sets sort option
       /// </summary>
       public KeyValuePair<NPCSortOption, string> SortOption
       {
          get { return _sortOption; }
          set { _sortOption = value; }
+      }
+
+
+      /// <summary>
+      /// Gets tag options
+      /// </summary>
+      public IEnumerable<KeyValuePair<string, string>> TagOptions
+      {
+         get { return _tagOptions; }
       }
 
       /// <summary>
@@ -98,21 +118,6 @@ namespace CritCompendiumInfrastructure.Business.Search.Input
       {
          get { return _tag; }
          set { _tag = value; }
-      }
-      /// <summary>
-      /// Gets sort options
-      /// </summary>
-      public List<KeyValuePair<NPCSortOption, string>> SortOptions
-      {
-         get { return _sortOptions; }
-      }
-
-      /// <summary>
-      /// Gets tag options
-      /// </summary>
-      public List<KeyValuePair<string, string>> TagOptions
-      {
-         get { return _tagOptions; }
       }
 
       #endregion
@@ -126,7 +131,15 @@ namespace CritCompendiumInfrastructure.Business.Search.Input
       {
          _searchText = String.Empty;
          _sortOption = _sortOptions[0];
-         _tag = _tagOptions[0];
+      }
+
+      #endregion
+
+      #region Private Methods
+
+      private void _compendium_TagsChanged(object sender, EventArgs e)
+      {
+         UpdateTags();
       }
 
       /// <summary>
@@ -134,12 +147,24 @@ namespace CritCompendiumInfrastructure.Business.Search.Input
       /// </summary>
       public void UpdateTags()
       {
-         _tagOptions = new List<KeyValuePair<string, string>>();
+         string oldTagKey = String.IsNullOrWhiteSpace(_tag.Key) ? null : _tag.Key;
+         _tag = default(KeyValuePair<string, string>);
+         _tagOptions.Clear();
+         _tagOptions.Add(new KeyValuePair<string, string>(null, "Any Tag"));
          foreach (string tag in _compendium.NPCs.SelectMany(x => x.Tags).Distinct())
          {
-            _tagOptions.Add(new KeyValuePair<string, string>(tag, tag));
+            KeyValuePair<string, string> tagOption = new KeyValuePair<string, string>(tag, tag);
+            _tagOptions.Add(tagOption);
+            if (tagOption.Key == oldTagKey)
+            {
+               _tag = tagOption;
+            }
          }
-         _tagOptions.Insert(0, new KeyValuePair<string, string>(null, "Any Tag"));
+
+         if (_tag.Equals(default(KeyValuePair<string, string>)))
+         {
+            _tag = _tagOptions[0];
+         }
       }
 
       #endregion

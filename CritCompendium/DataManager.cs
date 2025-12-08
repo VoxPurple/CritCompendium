@@ -30,6 +30,7 @@ namespace CritCompendium
       private static readonly string _itemsSaveFileName = "items.xml";
       private static readonly string _languagesSaveFileName = "languages.csv";
       private static readonly string _monstersSaveFileName = "monsters.xml";
+      private static readonly string _npcsSaveFileName = "npcs.ccna";
       private static readonly string _racesSaveFileName = "races.xml";
       private static readonly string _spellsSaveFileName = "spells.xml";
       private static readonly string _themeSaveFileName = "theme.data";
@@ -610,7 +611,11 @@ namespace CritCompendium
       /// </summary>
       public void SaveNPCs(IEnumerable<NPCModel> npcs)
       {
-
+         string path = Path.Combine(_saveDataFolder, _npcsSaveFileName);
+         INPCPersister NPCPersister = DependencyResolver.Resolve<Version1.NPCPersister>();
+         
+         byte[] npcBytes = NPCPersister.GetBytes(npcs);
+         File.WriteAllBytes(path, npcBytes);
       }
 
       /// <summary>
@@ -618,7 +623,11 @@ namespace CritCompendium
       /// </summary>
       public byte[] GetNPCBytes(NPCModel npcModel)
       {
-         return null;
+         byte[] npcBytes = null;
+         INPCPersister NPCPersister = DependencyResolver.Resolve<Version1.NPCPersister>();
+
+         npcBytes = NPCPersister.GetBytes(new NPCModel[] { npcModel });
+         return npcBytes;
       }
 
       /// <summary>
@@ -626,7 +635,23 @@ namespace CritCompendium
       /// </summary>
       public byte[] CreateNPCArchive(NPCModel npcModel)
       {
-         return null;
+         byte[] bytes = null;
+
+         using (MemoryStream stream = new MemoryStream())
+         {
+            using (ZipArchive archive = new ZipArchive(stream, ZipArchiveMode.Create))
+            {
+               ZipArchiveEntry entry = archive.CreateEntry(_npcsSaveFileName);
+
+               using (BinaryWriter writer = new BinaryWriter(entry.Open()))
+               {
+                  byte[] npcBytes = GetNPCBytes(npcModel);
+                  writer.Write(npcBytes);
+               }
+            }
+            bytes = stream.ToArray();
+         }
+         return bytes;
       }
 
       /// <summary>
@@ -634,7 +659,27 @@ namespace CritCompendium
       /// </summary>
       public IEnumerable<NPCModel> LoadNPCs()
       {
-         return Enumerable.Empty<NPCModel>();
+         List<NPCModel> npcs = new List<NPCModel>();
+
+         string path = Path.Combine(_saveDataFolder, _npcsSaveFileName);
+
+         if (File.Exists(path))
+         {
+            INPCPersister NPCPersister = null;
+            
+            byte[] npcBytes = File.ReadAllBytes(path);
+            int version = BitConverter.ToInt32(npcBytes.Take(4).ToArray(), 0);
+            if (version == 1)
+            {
+               NPCPersister = DependencyResolver.Resolve<Version1.NPCPersister>();
+            }
+            if (NPCPersister != null)
+            {
+               npcs = NPCPersister.GetNPCs(npcBytes).ToList();
+            }
+         }
+
+         return npcs;
       }
 
       /// <summary>
@@ -642,7 +687,10 @@ namespace CritCompendium
       /// </summary>
       public NPCModel GetNPC(byte[] npcBytes)
       {
-         return null;
+         NPCModel npc = null;
+         INPCPersister NPCPersister = DependencyResolver.Resolve<Version1.NPCPersister>();
+         npc = NPCPersister.GetNPCs(npcBytes).First();
+         return npc;
       }
 
       #endregion

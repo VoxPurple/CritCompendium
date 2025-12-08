@@ -27,6 +27,7 @@ namespace CritCompendium.ViewModels
       private List<byte[]> _characters = new List<byte[]>();
       private List<byte[]> _encounters = new List<byte[]>();
       private List<byte[]> _b_randomTables = new List<byte[]>();
+      private List<byte[]> _b_npcs = new List<byte[]>();
       private List<BackgroundModel> _backgrounds = new List<BackgroundModel>();
       private List<ClassModel> _classes = new List<ClassModel>();
       private List<ConditionModel> _conditions = new List<ConditionModel>();
@@ -34,6 +35,7 @@ namespace CritCompendium.ViewModels
       private List<ItemModel> _items = new List<ItemModel>();
       private List<LanguageModel> _languages = new List<LanguageModel>();
       private List<MonsterModel> _monsters = new List<MonsterModel>();
+      private List<NPCModel> _npcs = new List<NPCModel>();
       private List<RaceModel> _races = new List<RaceModel>();
       private List<RandomTableModel> _randomTables = new List<RandomTableModel>();
       private List<SpellModel> _spells = new List<SpellModel>();
@@ -155,6 +157,11 @@ namespace CritCompendium.ViewModels
          get { return _monsters.Count; }
       }
 
+      public int NPCCount
+      {
+         get { return _npcs.Count + _b_npcs.Count; }
+      }
+
       /// <summary>
       /// Gets race count
       /// </summary>
@@ -234,6 +241,8 @@ namespace CritCompendium.ViewModels
             _feats.Clear();
             _items.Clear();
             _monsters.Clear();
+            _npcs.Clear();
+            _b_npcs.Clear();
             _races.Clear();
             _spells.Clear();
             _languages.Clear();
@@ -257,6 +266,10 @@ namespace CritCompendium.ViewModels
                else if (ext == ".ccta")
                {
                   ReadTableArchive(fileDialog.FileName);
+               }
+               else if (ext == ".ccna")
+               {
+                  ReadNPCArchive(fileDialog.FileName);
                }
                else
                {
@@ -285,6 +298,7 @@ namespace CritCompendium.ViewModels
          OnPropertyChanged(nameof(ItemCount));
          OnPropertyChanged(nameof(LanguageCount));
          OnPropertyChanged(nameof(MonsterCount));
+         OnPropertyChanged(nameof(NPCCount));
          OnPropertyChanged(nameof(RaceCount));
          OnPropertyChanged(nameof(TableCount));
          OnPropertyChanged(nameof(SpellCount));
@@ -466,6 +480,7 @@ namespace CritCompendium.ViewModels
          _feats = xmlImporter.ReadFeats();
          _items = xmlImporter.ReadItems();
          _monsters = xmlImporter.ReadMonsters();
+         _npcs = xmlImporter.ReadNPCs();
          _races = xmlImporter.ReadRaces();
          _randomTables = xmlImporter.ReadRandomTables();
          _spells = xmlImporter.ReadSpells();
@@ -655,6 +670,26 @@ namespace CritCompendium.ViewModels
          }
 
          UpdateCountProperties();
+      }
+
+      private void ReadNPCArchive(string fileLocation)
+      {
+         using (FileStream fileStream = File.Open(fileLocation, FileMode.Open))
+         {
+            using (ZipArchive archive = new ZipArchive(fileStream, ZipArchiveMode.Read))
+            {
+               ZipArchiveEntry npcEntry = archive.GetEntry("npcs.ccna");
+
+               using (MemoryStream memoryStream = new MemoryStream())
+               {
+                  using (Stream stream = npcEntry.Open())
+                  {
+                     stream.CopyTo(memoryStream);
+                     _b_npcs.Add(memoryStream.ToArray());
+                  }
+               }
+            }
+         }
       }
 
       private void ImportCharacters()
@@ -980,6 +1015,68 @@ namespace CritCompendium.ViewModels
          }
       }
 
+      private void ImportNPCs()
+      {
+         // Import the Byte Arra NPCs (.ccna Import)
+         foreach (byte[] npcBytes in _b_npcs)
+         {
+            NPCModel npc = _dataManager.GetNPC(npcBytes);
+
+            if (_addAllEntries)
+            {
+               _compendium.AddNPC(npc);
+            }
+            else if (_skipDuplicateEntries)
+            {
+               // Verify no duplicate entries - Based on name alone? or do Name + some combination of other attributes?
+               if (!_compendium.NPCs.Any(x => x.Name.Equals(npc.Name, StringComparison.CurrentCultureIgnoreCase)))
+               {
+                  _compendium.AddNPC(npc);
+               }
+            }
+            else if (_replaceExistingEntries)
+            {
+               NPCModel existing = _compendium.NPCs.FirstOrDefault(x => x.Name.Equals(npc.Name, StringComparison.CurrentCultureIgnoreCase));
+               if (existing == null)
+               {
+                  _compendium.AddNPC(npc);
+               }
+               else
+               {
+                  _compendium.UpdateNPC(npc);
+               }
+            }
+         }
+
+         // Import the XML NPCs (.xml Import)
+         foreach(NPCModel npc in _npcs)
+         {
+            if (_addAllEntries)
+            {
+               _compendium.AddNPC(npc);
+            }
+            else if (_skipDuplicateEntries)
+            {
+               if (!_compendium.NPCs.Any(x => x.Name.Equals(npc.Name, StringComparison.CurrentCultureIgnoreCase)))
+               {
+                  _compendium.AddNPC(npc);
+               }
+            }
+            else if (_replaceExistingEntries)
+            {
+               NPCModel existing = _compendium.NPCs.FirstOrDefault(x => x.Name.Equals(npc.Name, StringComparison.CurrentCultureIgnoreCase));
+               if (existing == null)
+               {
+                  _compendium.AddNPC(npc);
+               }
+               else
+               {
+                  _compendium.UpdateNPC(npc);
+               }
+            }
+         }
+      }
+
       private void ImportRaces()
       {
          foreach (RaceModel raceModel in _races)
@@ -1109,6 +1206,11 @@ namespace CritCompendium.ViewModels
          {
             ImportRandomTables();
             _compendium.SaveTables();
+         }
+         if (_npcs.Any() || _b_npcs.Any())
+         {
+            ImportNPCs();
+            _compendium.SaveNPCs();
          }
 
          _compendium.NotifyImportComplete();

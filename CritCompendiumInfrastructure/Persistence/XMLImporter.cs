@@ -1436,6 +1436,116 @@ namespace CritCompendiumInfrastructure.Persistence
 
       #endregion
 
+      #region NPCs
+
+      public List<NPCModel> ReadNPCs()
+      {
+         List<NPCModel> npcs = new List<NPCModel>();
+
+         if (_doc.DocumentElement.Name.ToLower() == "npc")
+         {
+            NPCModel npcModel = GetNPC(_doc.DocumentElement);
+            if (npcModel != null)
+            {
+               npcs.Add(npcModel);
+            }
+         }
+         else
+         {
+            foreach (XmlNode npcNode in _doc.DocumentElement.SelectNodes("descendant::npc"))
+            {
+               NPCModel npcModel = GetNPC(npcNode);
+               if (npcModel != null)
+               {
+                  npcs.Add(npcModel);
+               }
+            }
+         }
+
+         return npcs;
+      }
+
+      public List<NPCModel> ReadNPCs(string xml)
+      {
+         List<NPCModel> npcs = new List<NPCModel>();
+         XmlDocument doc = new XmlDocument();
+         doc.LoadXml(xml);
+
+         foreach (XmlNode node in doc.DocumentElement.SelectNodes("descendant::npc"))
+         {
+            NPCModel npc = GetNPC(node);
+            if (npc != null)
+            {
+               npcs.Add(npc);
+            }
+         }
+
+         return npcs;
+      }
+
+      public NPCModel GetNPC(string xml)
+      {
+         string enclosedXML = "<npc>" + xml + "</npc>";
+         XmlDocument document = new XmlDocument();
+         document.LoadXml(enclosedXML);
+         return GetNPC(document.SelectSingleNode("npc"));
+      }
+
+      public NPCModel GetNPC(XmlNode npcNode)
+      {
+         NPCModel npc = null;
+
+         // Required nodes
+         XmlNode idNode = npcNode["id"];
+
+         XmlNode abilityNode = npcNode["abilities"];
+         XmlNode appearanceNode = npcNode["appearance"];
+         XmlNode backstoryNode = npcNode["backstory"];
+         XmlNode bondNode = npcNode["bond"];
+         XmlNode flawNode = npcNode["flaw"];
+         XmlNode idealNode = npcNode["ideal"];
+         XmlNode interactionsNode = npcNode["interactions"];
+         XmlNode mannerismNode = npcNode["mannerism"];
+         XmlNode nameNode = npcNode["name"];
+         XmlNode occupationNode = npcNode["occupation"];
+         XmlNode usefulInfoNode = npcNode["usefulKnowledge"];
+
+         // Grab the Child nodes for the "tags"
+         XmlNode tagNodes = npcNode["tags"];
+
+         // No required entry needed for an NPC - if this method gets called, new NPC generated
+         npc = new NPCModel();
+
+         npc.Id = idNode != null && Guid.TryParse(idNode.InnerText, out Guid id) ? id : Guid.NewGuid();
+         npc.Abilities = _stringService.DefaultIfNullOrEmpty(abilityNode?.InnerText, "");
+         npc.Appearance = _stringService.DefaultIfNullOrEmpty(appearanceNode?.InnerText, "");
+         npc.Backstory = _stringService.DefaultIfNullOrEmpty(backstoryNode?.InnerText, "");
+         npc.Bond = _stringService.DefaultIfNullOrEmpty(bondNode?.InnerText, "");
+         npc.Flaw = _stringService.DefaultIfNullOrEmpty(flawNode?.InnerText, "");
+         npc.Ideal = _stringService.DefaultIfNullOrEmpty(idealNode?.InnerText, "");
+         npc.Interactions = _stringService.DefaultIfNullOrEmpty(interactionsNode?.InnerText, "");
+         npc.Mannerism = _stringService.DefaultIfNullOrEmpty(mannerismNode?.InnerText, "");
+         npc.Name = _stringService.DefaultIfNullOrEmpty(nameNode?.InnerText, "Unknown");
+         npc.Occupation = _stringService.DefaultIfNullOrEmpty(occupationNode?.InnerText, "");
+         npc.UsefulKnowledge = _stringService.DefaultIfNullOrEmpty(usefulInfoNode?.InnerText, "");
+
+
+         if (tagNodes != null)
+         {
+            foreach (XmlNode tagNode in tagNodes.SelectNodes("tag"))
+            {
+               if (!String.IsNullOrWhiteSpace(tagNode.InnerText))
+               {
+                  npc.Tags.Add(tagNode.InnerText);
+               }
+            }
+         }
+
+         return npc;
+      }
+
+      #endregion
+
       #region Races
 
       /// <summary>
@@ -1694,7 +1804,7 @@ namespace CritCompendiumInfrastructure.Persistence
 
             randomTableModel.Name = nameNode.InnerText;
             randomTableModel.Die = dieNode.InnerText;
-         
+
             randomTableModel.Header = headerNode != null ? headerNode.InnerText : String.Empty;
 
             if (idNode != null)

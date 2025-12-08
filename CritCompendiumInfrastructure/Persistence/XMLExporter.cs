@@ -136,6 +136,41 @@ namespace CritCompendiumInfrastructure.Persistence
       }
 
       /// <summary>
+      /// Gets formatted xml of NPC object
+      /// </summary>
+      public string GetXML(NPCModel model)
+      {
+         string xml = String.Empty;
+
+         if (model != null)
+         {
+            xml += $"<npc><id>{model.Id}</id>";
+
+            xml += $"<abilities>{model.Abilities}</abilities>";
+            xml += $"<appearance>{model.Appearance}</appearance>";
+            xml += $"<backstory>{model.Backstory}</backstory>";
+            xml += $"<bond>{model.Bond}</bond>";
+            xml += $"<flaw>{model.Flaw}</flaw>";
+            xml += $"<ideal>{model.Ideal}</ideal>";
+            xml += $"<interactions>{model.Interactions}</interactions>";
+            xml += $"<mannerism>{model.Mannerism}</mannerism>";
+            xml += $"<name>{model.Name}</name>";
+            xml += $"<occupation>{model.Occupation}</occupation>";
+            xml += $"<usefulKnowledge>{model.UsefulKnowledge}</usefulKnowledge>";
+
+            xml += $"<tags>";
+            foreach (string tag in model.Tags)
+            {
+               xml += $"<tag>{tag}</tag>";
+            }
+            xml += $"</tags>";
+
+            xml += "</npc>";
+         }
+         return xml;
+      }
+
+      /// <summary>
       /// Gets formatted xml of object
       /// </summary>
       public string GetXML(RaceModel model)

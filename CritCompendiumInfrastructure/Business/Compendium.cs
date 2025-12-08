@@ -577,7 +577,7 @@ namespace CritCompendiumInfrastructure.Business
          {
             _npcs.Add(npcModel);
 
-            //UpdateTags();
+            UpdateTags();
          }
       }
 

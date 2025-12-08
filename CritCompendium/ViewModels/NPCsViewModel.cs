@@ -12,6 +12,7 @@ using CritCompendiumInfrastructure.Persistence;
 using CritCompendiumInfrastructure.Business;
 using CritCompendiumInfrastructure.Business.Search;
 using CritCompendiumInfrastructure.Business.Search.Input;
+using CritCompendiumInfrastructure.Enums;
 
 namespace CritCompendium.ViewModels
 {
@@ -25,6 +26,7 @@ namespace CritCompendium.ViewModels
       private readonly StringService _stringService;
       private readonly DialogService _dialogService;
       private readonly XMLImporter _xmlImporter;
+      private readonly XMLExporter _xmlExporter;
       private readonly DocumentService _documentService;
       private readonly DataManager _dataManager;
       private readonly ObservableCollection<ListItemViewModel<NPCModel>> _npcs = new ObservableCollection<ListItemViewModel<NPCModel>>();
@@ -52,7 +54,7 @@ namespace CritCompendium.ViewModels
       /// Creates an instance of <see cref="NPCsViewModel"/>
       /// </summary>
       public NPCsViewModel(Compendium compendium, NPCSearchService npcSearchService, NPCSearchInput npcSearchInput,
-          StringService stringService, DialogService dialogService, XMLImporter xmlImporter, DocumentService documentService, DataManager dataManager)
+          StringService stringService, DialogService dialogService, XMLImporter xmlImporter, XMLExporter xmlExporter, DocumentService documentService, DataManager dataManager)
       {
          _compendium = compendium;
          _npcSearchService = npcSearchService;
@@ -60,6 +62,7 @@ namespace CritCompendium.ViewModels
          _stringService = stringService;
          _dialogService = dialogService;
          _xmlImporter = xmlImporter;
+         _xmlExporter = xmlExporter;
          _documentService = documentService;
          _dataManager = dataManager;
 
@@ -100,6 +103,56 @@ namespace CritCompendium.ViewModels
          set
          {
             _npcSearchInput.SearchText = value;
+            Search();
+         }
+      }
+
+      public string SortAndFilterHeader
+      {
+         get
+         {
+            return _npcSearchInput.AppliedFilterCount > 0 ? $"Sort and Filter ({_npcSearchInput.AppliedFilterCount})" : "Sort and Filter";
+         }
+      }
+
+      public bool SortAndFiltersExpanded
+      {
+         get { return _npcSearchInput.SortAndFiltersExpanded; }
+         set { _npcSearchInput.SortAndFiltersExpanded = value; }
+      }
+
+      public IEnumerable<KeyValuePair<NPCSortOption, string>> SortOptions
+      {
+         get
+         {
+            return _npcSearchInput.SortOptions;
+         }
+      }
+
+      public KeyValuePair<NPCSortOption, string> SelectedSortOption
+      {
+         get { return _npcSearchInput.SortOption; }
+         set
+         {
+            _npcSearchInput.SortOption = value;
+            Search();
+         }
+      }
+
+      public IEnumerable<KeyValuePair<string, string>> TagOptions
+      {
+         get
+         {
+            return _npcSearchInput.TagOptions;
+         }
+      }
+
+      public KeyValuePair<string, string> SelectedTagOption
+      {
+         get { return _npcSearchInput.Tag; }
+         set
+         {
+            _npcSearchInput.Tag = value;
             Search();
          }
       }
@@ -257,6 +310,9 @@ namespace CritCompendium.ViewModels
                npc.IsSelected = true;
             }
          }
+
+         OnPropertyChanged(nameof(TagOptions));
+         OnPropertyChanged(nameof(SelectedTagOption));
       }
 
       #endregion
@@ -379,6 +435,7 @@ namespace CritCompendium.ViewModels
             OnPropertyChanged(nameof(EditingNPC));
             OnPropertyChanged(nameof(IsEditingNPC));
             OnPropertyChanged(nameof(HasUnsavedChanges));
+            OnPropertyChanged(nameof(SelectedTagOption));
 
             saved = true;
          }
@@ -453,6 +510,7 @@ namespace CritCompendium.ViewModels
             OnPropertyChanged(nameof(EditingNPC));
             OnPropertyChanged(nameof(IsEditingNPC));
             OnPropertyChanged(nameof(SelectedNPC));
+            OnPropertyChanged(nameof(SelectedTagOption));
          }
       }
 
@@ -522,6 +580,7 @@ namespace CritCompendium.ViewModels
                _compendium.SaveNPCs();
 
                OnPropertyChanged(nameof(SelectedNPC));
+               OnPropertyChanged(nameof(SelectedTagOption));
             }
          }
       }
@@ -550,6 +609,7 @@ namespace CritCompendium.ViewModels
                _compendium.SaveNPCs();
 
                OnPropertyChanged(nameof(SelectedNPC));
+               OnPropertyChanged(nameof(SelectedTagOption));
 
                if (_npcEditViewModel != null)
                {
@@ -599,7 +659,7 @@ namespace CritCompendium.ViewModels
       private void ExportNPC(NPCViewModel npcViewModel)
       {
          Microsoft.Win32.SaveFileDialog saveFileDialog = new Microsoft.Win32.SaveFileDialog();
-         saveFileDialog.Filter = "NPC Archive|*.ccea|Word Document|*.docx";
+         saveFileDialog.Filter = "NPC Archive|*.ccna|XML Document|*.xml";
          saveFileDialog.Title = "Save NPC";
          saveFileDialog.FileName = npcViewModel.Name;
 
@@ -609,14 +669,15 @@ namespace CritCompendium.ViewModels
             {
                string ext = Path.GetExtension(saveFileDialog.FileName);
 
-               if (ext == ".ccaa")
+               if (ext == ".ccna")
                {
                   byte[] bytes = _dataManager.CreateNPCArchive(npcViewModel.NPCModel);
                   File.WriteAllBytes(saveFileDialog.FileName, bytes);
                }
-               else if (ext == "*.docx")
+               else if (ext == ".xml")
                {
-                  //_documentService.CreateWordDoc(saveFileDialog.FileName, npcViewModel);
+                  string xml = _xmlExporter.FormatXMLWithHeader(_xmlExporter.GetXML(npcViewModel.NPCModel));
+                  File.WriteAllText(saveFileDialog.FileName, xml);
                }
                else
                {

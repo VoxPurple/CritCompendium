@@ -867,6 +867,11 @@ A character can spend one or more Hit Dice at the end of a short rest, up to the
          return String.IsNullOrWhiteSpace(value) ? "Unknown" : value;
       }
 
+      public string DefaultIfNullOrEmpty(string value, string defaultValue)
+      {
+         return String.IsNullOrWhiteSpace(value) ? defaultValue : value;
+      }
+
       #endregion
 
       #region Private Methods
