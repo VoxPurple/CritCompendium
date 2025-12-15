@@ -25,15 +25,16 @@
                           Text="{Binding Appearance}"
                           TextWrapping="Wrap" />
             </StackPanel>
-
+         </WrapPanel>
+         <WrapPanel>
             <StackPanel Width="325" Margin="0,0,15,0">
                <TextBlock Margin="0,10,0,0"
                           FontSize="10"
                           Foreground="{DynamicResource _secondaryTextBrush}"
-                          Text="Ideal" />
+                          Text="Mannerisms" />
                <TextBlock Margin="0,0,0,10"
                           Foreground="{DynamicResource _primaryTextBrush}"
-                          Text="{Binding Ideal}"
+                          Text="{Binding Mannerism}"
                           TextWrapping="Wrap" />
             </StackPanel>
 
@@ -41,7 +42,20 @@
                <TextBlock Margin="0,10,0,0"
                           FontSize="10"
                           Foreground="{DynamicResource _secondaryTextBrush}"
-                          Text="Bond" />
+                          Text="Ideals" />
+               <TextBlock Margin="0,0,0,10"
+                          Foreground="{DynamicResource _primaryTextBrush}"
+                          Text="{Binding Ideal}"
+                          TextWrapping="Wrap" />
+            </StackPanel>
+
+            </WrapPanel>
+         <WrapPanel>
+            <StackPanel Width="325" Margin="0,0,15,0">
+               <TextBlock Margin="0,10,0,0"
+                          FontSize="10"
+                          Foreground="{DynamicResource _secondaryTextBrush}"
+                          Text="Bonds" />
                <TextBlock Margin="0,0,0,10"
                           Foreground="{DynamicResource _primaryTextBrush}"
                           Text="{Binding Bond}"
@@ -52,13 +66,14 @@
                <TextBlock Margin="0,10,0,0"
                           FontSize="10"
                           Foreground="{DynamicResource _secondaryTextBrush}"
-                          Text="Flaw" />
+                          Text="Flaws" />
                <TextBlock Margin="0,0,0,10"
                           Foreground="{DynamicResource _primaryTextBrush}"
                           Text="{Binding Flaw}"
                           TextWrapping="Wrap" />
             </StackPanel>
-
+         </WrapPanel>
+         <WrapPanel>
             <StackPanel Width="325" Margin="0,0,15,0">
                <TextBlock Margin="0,10,0,0"
                           FontSize="10"
@@ -74,35 +89,22 @@
                <TextBlock Margin="0,10,0,0"
                           FontSize="10"
                           Foreground="{DynamicResource _secondaryTextBrush}"
-                          Text="Mannerism" />
-               <TextBlock Margin="0,0,0,10"
-                          Foreground="{DynamicResource _primaryTextBrush}"
-                          Text="{Binding Mannerism}"
-                          TextWrapping="Wrap" />
-            </StackPanel>
-
-            <StackPanel Width="325" Margin="0,0,15,0">
-               <TextBlock Margin="0,10,0,0"
-                          FontSize="10"
-                          Foreground="{DynamicResource _secondaryTextBrush}"
                           Text="Interactions" />
                <TextBlock Margin="0,0,0,10"
                           Foreground="{DynamicResource _primaryTextBrush}"
                           Text="{Binding Interactions}"
                           TextWrapping="Wrap" />
             </StackPanel>
-
-            <StackPanel Width="325" Margin="0,0,15,0">
-               <TextBlock Margin="0,10,0,0"
-                          FontSize="10"
-                          Foreground="{DynamicResource _secondaryTextBrush}"
-                          Text="Useful Knowledge" />
-               <TextBlock Margin="0,0,0,10"
-                          Foreground="{DynamicResource _primaryTextBrush}"
-                          Text="{Binding UsefulKnowledge}"
-                          TextWrapping="Wrap" />
-            </StackPanel>
          </WrapPanel>
+
+         <TextBlock Margin="0,10,0,0"
+                    FontSize="10"
+                    Foreground="{DynamicResource _secondaryTextBrush}"
+                    Text="Useful Knowledge" />
+         <TextBlock Margin="0,0,0,10"
+                    Foreground="{DynamicResource _primaryTextBrush}"
+                    Text="{Binding UsefulKnowledge}"
+                    TextWrapping="Wrap" />
 
          <TextBlock Margin="0,10,0,0"
                     FontSize="10"
