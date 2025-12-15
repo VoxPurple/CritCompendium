@@ -149,11 +149,11 @@ namespace CritCompendiumInfrastructure.Persistence
             xml += $"<abilities>{model.Abilities}</abilities>";
             xml += $"<appearance>{model.Appearance}</appearance>";
             xml += $"<backstory>{model.Backstory}</backstory>";
-            xml += $"<bond>{model.Bond}</bond>";
-            xml += $"<flaw>{model.Flaw}</flaw>";
-            xml += $"<ideal>{model.Ideal}</ideal>";
+            xml += $"<bonds>{model.Bond}</bonds>";
+            xml += $"<flaws>{model.Flaw}</flaws>";
+            xml += $"<ideals>{model.Ideal}</ideals>";
             xml += $"<interactions>{model.Interactions}</interactions>";
-            xml += $"<mannerism>{model.Mannerism}</mannerism>";
+            xml += $"<mannerisms>{model.Mannerism}</mannerisms>";
             xml += $"<name>{model.Name}</name>";
             xml += $"<occupation>{model.Occupation}</occupation>";
             xml += $"<usefulKnowledge>{model.UsefulKnowledge}</usefulKnowledge>";

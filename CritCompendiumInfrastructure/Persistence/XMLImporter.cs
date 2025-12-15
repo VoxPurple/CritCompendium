@@ -1501,11 +1501,11 @@ namespace CritCompendiumInfrastructure.Persistence
          XmlNode abilityNode = npcNode["abilities"];
          XmlNode appearanceNode = npcNode["appearance"];
          XmlNode backstoryNode = npcNode["backstory"];
-         XmlNode bondNode = npcNode["bond"];
-         XmlNode flawNode = npcNode["flaw"];
-         XmlNode idealNode = npcNode["ideal"];
+         XmlNode bondNode = npcNode["bonds"];
+         XmlNode flawNode = npcNode["flaws"];
+         XmlNode idealNode = npcNode["ideals"];
          XmlNode interactionsNode = npcNode["interactions"];
-         XmlNode mannerismNode = npcNode["mannerism"];
+         XmlNode mannerismNode = npcNode["mannerisms"];
          XmlNode nameNode = npcNode["name"];
          XmlNode occupationNode = npcNode["occupation"];
          XmlNode usefulInfoNode = npcNode["usefulKnowledge"];
