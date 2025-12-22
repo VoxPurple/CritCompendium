@@ -33,7 +33,7 @@ namespace CritCompendiumInfrastructure.Models
       /// </summary>
       public CompendiumEntryModel(CompendiumEntryModel compendiumEntryModel)
       {
-         _id = Guid.NewGuid();
+         _id = compendiumEntryModel.Id;
          _name = compendiumEntryModel.Name;
          _tags = new List<string>(compendiumEntryModel.Tags);
       }
