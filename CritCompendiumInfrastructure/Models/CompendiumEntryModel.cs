@@ -31,9 +31,9 @@ namespace CritCompendiumInfrastructure.Models
       /// <summary>
       /// Creates a copy of the <see cref="CompendiumEntryModel"/> instance.
       /// </summary>
-      public CompendiumEntryModel(CompendiumEntryModel compendiumEntryModel)
+      public CompendiumEntryModel(CompendiumEntryModel compendiumEntryModel, bool new_id = false)
       {
-         _id = Guid.NewGuid();
+         _id = new_id ? Guid.NewGuid() : compendiumEntryModel.Id;
          _name = compendiumEntryModel.Name;
          _tags = new List<string>(compendiumEntryModel.Tags);
       }
