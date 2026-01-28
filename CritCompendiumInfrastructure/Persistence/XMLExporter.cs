@@ -120,6 +120,99 @@ namespace CritCompendiumInfrastructure.Persistence
          return xml;
       }
 
+      public string GetXML(RoomModel model)
+      {
+         string xml = String.Empty;
+
+         if (model != null)
+         {
+            xml += $"<room><id>{model.ID}</id><name>{model.Name}</name>";
+            xml += "<description>" + model.Description + "</description>";
+            xml += "<entry>" + model.Entry + "</entry>";
+            xml += "<map>" + model.Map + "</map>";
+            xml += "<floor>" + model.Floor + "</floor>";
+            xml += "</room>";
+         }
+
+         return xml;
+      }
+
+      public string GetXML(BuildingModel model)
+      {
+         string xml = String.Empty;
+
+         if (model != null)
+         {
+            xml += $"<building><id>{model.ID}</id><name>{model.Name}</name>";
+            xml += "<description>" + model.Description + "</description>";
+            xml += "<map>" + model.Map + "</map>";
+            xml += "<buildingType>" + model.BuildingType.ToString() + "</buildingType>";
+            xml += "<customBuildingType>" + model.CustomBuildingType + "</customBuildingType>";
+
+            xml += "<rooms>";
+            foreach (RoomModel room in model.Rooms)
+            {
+               xml += GetXML(room);
+            }
+            xml += "</rooms>";
+            xml += "</building>";
+         }
+
+         return xml;
+      }
+
+
+      // <summary>
+      // Gets formatted xml of the Location object
+      // </summary>
+      public string GetXML(LocationModel model)
+      {
+         string xml = String.Empty;
+
+         if (model != null)
+         {
+            xml += $"<location><id>{model.Id}</id><name>{model.Name}</name>";
+            xml += "<tags>";
+            foreach (string tag in model.Tags)
+            {
+               xml += $"<tag>{tag}</tag>";
+            }
+            xml += "</tags>";
+
+            xml += "<rooms>";
+            foreach (RoomModel room in model.Rooms)
+            {
+               xml += GetXML(room);
+            }
+            xml += "</rooms>";
+
+            xml += "<buildings>";
+            foreach (BuildingModel building in model.Buildings)
+            {
+               xml += GetXML(building);
+            }
+            xml += "</buildings>";
+
+            xml += "<description>" + model.Description + "</description>";
+            xml += "<location>" + model.Location + "</location>";
+            xml += "<map>" + model.Map + "</map>";
+            xml += "<locationType>" + model.LocationType.ToString() + "</locationType>";
+            xml += "<creator>" + model.Creator + "</creator>";
+            xml += "<rulerNotes>" + model.RulerNotes + "</rulerNotes>";
+            xml += "<traits>" + model.Traits + "</traits>";
+            xml += "<knownFor>" + model.KnownFor + "</knownFor>";
+            xml += "<conflicts>" + model.Conflicts + "</conflicts>";
+            xml += "<landmarks>" + model.Landmarks + "</landmarks>";
+            xml += "<environment>" + model.Environment + "</environment>";
+            xml += "<weather>" + model.Weather + "</weather>";
+            xml += "<foodAndWater>" + model.FoodAndWater + "</foodAndWater>";
+            xml += "<hazards>" + model.Hazards + "</hazards>";
+            xml += "</location>";
+         }
+
+         return xml;
+      }
+
       /// <summary>
       /// Gets formatted xml of object
       /// </summary>

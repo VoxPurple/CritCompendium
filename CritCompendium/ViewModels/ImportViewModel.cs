@@ -27,12 +27,14 @@ namespace CritCompendium.ViewModels
       private List<byte[]> _characters = new List<byte[]>();
       private List<byte[]> _encounters = new List<byte[]>();
       private List<byte[]> _b_randomTables = new List<byte[]>();
+      private List<byte[]> _b_locations = new List<byte[]>();
       private List<BackgroundModel> _backgrounds = new List<BackgroundModel>();
       private List<ClassModel> _classes = new List<ClassModel>();
       private List<ConditionModel> _conditions = new List<ConditionModel>();
       private List<FeatModel> _feats = new List<FeatModel>();
       private List<ItemModel> _items = new List<ItemModel>();
       private List<LanguageModel> _languages = new List<LanguageModel>();
+      private List<LocationModel> _locations = new List<LocationModel>();
       private List<MonsterModel> _monsters = new List<MonsterModel>();
       private List<RaceModel> _races = new List<RaceModel>();
       private List<RandomTableModel> _randomTables = new List<RandomTableModel>();
@@ -148,6 +150,14 @@ namespace CritCompendium.ViewModels
       }
 
       /// <summary>
+      /// Gets location count
+      /// </summary>
+      public int LocationCount
+      {
+         get { return _locations.Count + _b_locations.Count; }
+      }
+
+      /// <summary>
       /// Gets monster count
       /// </summary>
       public int MonsterCount
@@ -220,7 +230,7 @@ namespace CritCompendium.ViewModels
       private void Browse()
       {
          OpenFileDialog fileDialog = new OpenFileDialog();
-         fileDialog.Filter = "Compendium Files|*.xml;*.ccca;*.ccea;*.ccta|XML Files|*.xml|Character Archives|*.ccca|Encounter Archives|*.ccea|Table Archives|*.ccta";
+         fileDialog.Filter = "Compendium Files|*.xml;*.ccca;*.ccea;*.ccta;*.ccla|XML Files|*.xml|Character Archives|*.ccca|Encounter Archives|*.ccea|Table Archives|*.ccta|Location Archives|*.ccla";
 
          if (fileDialog.ShowDialog() == true)
          {
@@ -237,6 +247,8 @@ namespace CritCompendium.ViewModels
             _races.Clear();
             _spells.Clear();
             _languages.Clear();
+            _b_locations.Clear();
+            _locations.Clear();
 
             string ext = Path.GetExtension(fileDialog.FileName);
 
@@ -257,6 +269,10 @@ namespace CritCompendium.ViewModels
                else if (ext == ".ccta")
                {
                   ReadTableArchive(fileDialog.FileName);
+               }
+               else if (ext == ".ccla")
+               {
+                  ReadLocationArchive(fileDialog.FileName);
                }
                else
                {
@@ -284,6 +300,7 @@ namespace CritCompendium.ViewModels
          OnPropertyChanged(nameof(FeatCount));
          OnPropertyChanged(nameof(ItemCount));
          OnPropertyChanged(nameof(LanguageCount));
+         OnPropertyChanged(nameof(LocationCount));
          OnPropertyChanged(nameof(MonsterCount));
          OnPropertyChanged(nameof(RaceCount));
          OnPropertyChanged(nameof(TableCount));
@@ -465,6 +482,7 @@ namespace CritCompendium.ViewModels
          _conditions = xmlImporter.ReadConditions();
          _feats = xmlImporter.ReadFeats();
          _items = xmlImporter.ReadItems();
+         _locations = xmlImporter.ReadLocations();
          _monsters = xmlImporter.ReadMonsters();
          _races = xmlImporter.ReadRaces();
          _randomTables = xmlImporter.ReadRandomTables();
@@ -657,6 +675,28 @@ namespace CritCompendium.ViewModels
          UpdateCountProperties();
       }
 
+      private void ReadLocationArchive(string fileLocation)
+      {
+         using (FileStream fileStream = File.Open(fileLocation, FileMode.Open))
+         {
+            using (ZipArchive archive = new ZipArchive(fileStream, ZipArchiveMode.Read))
+            {
+               ZipArchiveEntry locationEntry = archive.GetEntry("locations.ccla");
+
+               using (MemoryStream memoryStream = new MemoryStream())
+               {
+                  using (Stream stream = locationEntry.Open())
+                  {
+                     stream.CopyTo(memoryStream);
+                     _b_locations.Add(memoryStream.ToArray());
+                  }
+               }
+            }
+         }
+
+         UpdateCountProperties();
+      }
+
       private void ImportCharacters()
       {
          foreach (byte[] characterBytes in _characters)
@@ -777,6 +817,7 @@ namespace CritCompendium.ViewModels
                }
                else
                {
+                  table.Id = existing.Id;
                   _compendium.UpdateTable(table);
                }
             }
@@ -949,6 +990,68 @@ namespace CritCompendium.ViewModels
          }
       }
 
+      private void ImportLocations()
+      {
+         // Location Archive Import
+         foreach (byte[] locationBytes in _b_locations)
+         {
+            LocationModel locationModel = _dataManager.GetLocation(locationBytes);
+
+            if (_addAllEntries)
+            {
+               _compendium.AddLocation(locationModel);
+            }
+            else if (_skipDuplicateEntries)
+            {
+               if (!_compendium.Locations.Any(x => x.Name.Equals(locationModel.Name, StringComparison.CurrentCultureIgnoreCase)))
+               {
+                  _compendium.AddLocation(locationModel);
+               }
+            }
+            else if (_replaceExistingEntries)
+            {
+               LocationModel existing = _compendium.Locations.FirstOrDefault(x => x.Name.Equals(locationModel.Name, StringComparison.CurrentCultureIgnoreCase));
+               if (existing == null)
+               {
+                  _compendium.AddLocation(locationModel);
+               }
+               else
+               {
+                  locationModel.Id = existing.Id;
+                  _compendium.UpdateLocation(locationModel);
+               }
+            }
+         }
+         // XML Import
+         foreach (LocationModel location in _locations)
+         {
+            if (_addAllEntries)
+            {
+               
+            }
+            else if (_skipDuplicateEntries)
+            {
+               if (!_compendium.Locations.Any(x => x.Name.Equals(location.Name, StringComparison.CurrentCultureIgnoreCase)))
+               {
+                  _compendium.AddLocation(location);
+               }
+            }
+            else if (_replaceExistingEntries)
+            {
+               LocationModel existing = _compendium.Locations.FirstOrDefault(x => x.Name.Equals(location.Name, StringComparison.CurrentCultureIgnoreCase));
+               if (existing == null)
+               {
+                  _compendium.AddLocation(location);
+               }
+               else
+               {
+                  location.Id = existing.Id;
+                  _compendium.UpdateLocation(location);
+               }
+            }
+         }
+      }
+
       private void ImportMonsters()
       {
          foreach (MonsterModel monsterModel in _monsters)
@@ -1079,6 +1182,11 @@ namespace CritCompendium.ViewModels
          {
             ImportLanguages();
             _compendium.SaveLanguages();
+         }
+         if (_locations.Any() || _b_locations.Any())
+         {
+            ImportLocations();
+            _compendium.SaveLocations();
          }
          if (_monsters.Any())
          {

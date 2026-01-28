@@ -1012,6 +1012,348 @@ namespace CritCompendiumInfrastructure.Persistence
 
       #endregion
 
+      #region Locations [Buildings and Rooms]
+
+      public List<RoomModel> ReadRooms()
+      {
+         List<RoomModel> rooms = new List<RoomModel>();
+
+         if (_doc.DocumentElement.Name.ToLower() == "room")
+         {
+            RoomModel room = GetRoom(_doc.DocumentElement);
+            if (room != null)
+            {
+               rooms.Add(room);
+            }
+         }
+         else
+         {
+            foreach (XmlNode roomNode in _doc.DocumentElement.SelectNodes("descendant::room"))
+            {
+               RoomModel room = GetRoom(roomNode);
+               if (room != null)
+               {
+                  rooms.Add(room);
+               }
+            }
+         }
+
+         return rooms;
+      }
+
+      public List<BuildingModel> ReadBuildings()
+      {
+         List<BuildingModel> buildings = new List<BuildingModel>();
+
+         if (_doc.DocumentElement.Name.ToLower() == "building")
+         {
+            BuildingModel building = GetBuilding(_doc.DocumentElement);
+            if (building != null)
+            {
+               buildings.Add(building);
+            }
+         }
+         else
+         {
+            foreach (XmlNode buildingNode in _doc.DocumentElement.SelectNodes("descendant::building"))
+            {
+               BuildingModel building = GetBuilding(buildingNode);
+               if (building != null)
+               {
+                  buildings.Add(building);
+               }
+            }
+         }
+
+         return buildings;
+      }
+
+      public List<LocationModel> ReadLocations()
+      {
+         List<LocationModel> locations = new List<LocationModel>();
+
+         if (_doc.DocumentElement.Name.ToLower() == "location")
+         {
+            LocationModel location = GetLocation(_doc.DocumentElement);
+            if (location != null)
+            {
+               locations.Add(location);
+            }
+         }
+         else
+         {
+            foreach (XmlNode locationNode in _doc.DocumentElement.SelectNodes("descendant::location"))
+            {
+               LocationModel location = GetLocation(locationNode);
+               if (location != null)
+               {
+                  locations.Add(location);
+               }
+            }
+         }
+
+         return locations;
+      }
+
+      public List<RoomModel> ReadRooms(string xml)
+      {
+         List<RoomModel> rooms = new List<RoomModel>();
+
+         XmlDocument doc = new XmlDocument();
+         doc.LoadXml(xml);
+
+         foreach (XmlNode node in doc.DocumentElement.SelectNodes("descendant::room"))
+         {
+            RoomModel room = GetRoom(node);
+
+            if (room != null)
+            {
+               rooms.Add(room);
+            }
+         }
+
+         return rooms.OrderBy(x => x.Name).ToList();
+      }
+
+      public List<BuildingModel> ReadBuildings(string xml)
+      {
+         List<BuildingModel> buildings = new List<BuildingModel>();
+
+         XmlDocument doc = new XmlDocument();
+         doc.LoadXml(xml);
+
+         foreach (XmlNode node in doc.DocumentElement.SelectNodes("descendant::building"))
+         {
+            BuildingModel building = GetBuilding(node);
+
+            if (building != null)
+            {
+               buildings.Add(building);
+            }
+         }
+
+         return buildings.OrderBy(x => x.Name).ToList();
+      }
+
+      public List<LocationModel> ReadLocations(string xml)
+      {
+         List<LocationModel> locations = new List<LocationModel>();
+
+         XmlDocument doc = new XmlDocument();
+         doc.LoadXml(xml);
+
+         foreach (XmlNode node in doc.DocumentElement.SelectNodes("descendant::location"))
+         {
+            LocationModel location = GetLocation(node);
+
+            if (location != null)
+            {
+               locations.Add(location);
+            }
+         }
+
+         return locations.OrderBy(x => x.Name).ToList();
+      }
+
+      public RoomModel GetRoom(string xml)
+      {
+         string enclosedXML = "<room>" + xml + "</room>";
+         XmlDocument document = new XmlDocument();
+         document.LoadXml(enclosedXML);
+         return GetRoom(document.SelectSingleNode("room"));
+      }
+
+      public BuildingModel GetBuilding(string xml)
+      {
+         string enclosedXML = "<building>" + xml + "</building>";
+         XmlDocument document = new XmlDocument();
+         document.LoadXml(enclosedXML);
+         return GetBuilding(document.SelectSingleNode("building"));
+      }
+
+      public LocationModel GetLocation(string xml)
+      {
+         string enclosedXML = "<location>" + xml + "</location>";
+         XmlDocument document = new XmlDocument();
+         document.LoadXml(enclosedXML);
+         return GetLocation(document.SelectSingleNode("location"));
+      }
+
+      public RoomModel GetRoom(XmlNode roomNode)
+      {
+         RoomModel roomModel = null;
+      
+         XmlNode idNode = roomNode["id"];
+         XmlNode nameNode = roomNode["name"];
+         XmlNode descriptionNode = roomNode["description"];
+         XmlNode entryNode = roomNode["entry"];
+         XmlNode mapNode = roomNode["map"];
+         XmlNode floorNode = roomNode["floor"];
+
+         if (nameNode != null)
+         {
+            roomModel = new RoomModel();
+
+            if (idNode != null)
+            {
+               if (Guid.TryParse(idNode.InnerText, out Guid id))
+               {
+                  roomModel.ID = id;
+               }
+               roomNode.RemoveChild(idNode);
+            }
+            roomModel.Name = _stringService.DefaultIfNullOrEmpty(nameNode.InnerText, "");
+            roomModel.Description = _stringService.DefaultIfNullOrEmpty(descriptionNode?.InnerText, "");
+            roomModel.Entry = _stringService.DefaultIfNullOrEmpty(entryNode?.InnerText, "");
+            roomModel.Map = _stringService.DefaultIfNullOrEmpty(mapNode?.InnerText, "");
+            roomModel.Floor = _stringService.DefaultIfNullOrEmpty(floorNode?.InnerText, "");
+         }
+
+         return roomModel;
+      }
+
+      public BuildingModel GetBuilding(XmlNode buildingNode)
+      {
+         BuildingModel buildingModel = null;
+
+         XmlNode idNode = buildingNode["id"];
+         XmlNode nameNode = buildingNode["name"];
+         XmlNode descriptionNode = buildingNode["description"];
+         XmlNode mapNode = buildingNode["map"];
+         XmlNode buildingTypeNode = buildingNode["buildingType"];
+         XmlNode customTypeNode = buildingNode["customBuildingType"];
+
+         XmlNode roomsNode = buildingNode["rooms"];
+
+         if (nameNode != null)
+         {
+            buildingModel = new BuildingModel();
+
+            if (idNode != null)
+            {
+               if (Guid.TryParse(idNode.InnerText, out Guid id))
+               {
+                  buildingModel.ID = id;
+               }
+               buildingNode.RemoveChild(idNode);
+            }
+            buildingModel.Name = _stringService.DefaultIfNullOrEmpty(nameNode.InnerText, "");
+            buildingModel.Description = _stringService.DefaultIfNullOrEmpty(descriptionNode?.InnerText, "");
+            buildingModel.Map = _stringService.DefaultIfNullOrEmpty(mapNode?.InnerText, "");
+            buildingModel.CustomBuildingType = _stringService.DefaultIfNullOrEmpty(customTypeNode?.InnerText, "");
+
+            string buildingTypeText = _stringService.DefaultIfNullOrEmpty(buildingTypeNode?.InnerText, "");
+            if (Enum.TryParse(buildingTypeText, out BuildingType buildingType))
+            {
+               buildingModel.BuildingType = buildingType;
+            }
+            else
+            {
+               buildingModel.BuildingType = BuildingType.Other;
+            }
+            
+            foreach (XmlNode roomNode in roomsNode.SelectNodes("room"))
+            {
+               RoomModel room = GetRoom(roomNode);
+               if (room != null)
+               {
+                  buildingModel.Rooms.Add(room);
+               }
+            }
+         }
+      
+         return buildingModel;
+      }
+
+      public LocationModel GetLocation(XmlNode locationNode)
+      {
+         LocationModel locationModel = null;
+         XmlNode idNode = locationNode["id"];
+         XmlNode nameNode = locationNode["name"];
+         XmlNode descriptionNode = locationNode["description"];
+         XmlNode locationNameNode = locationNode["location"];
+         XmlNode mapNode = locationNode["map"];
+         XmlNode locationTypeNode = locationNode["locationType"];
+         XmlNode creatorNode = locationNode["creator"];
+         XmlNode rulerNotesNode = locationNode["rulerNotes"];
+         XmlNode traitsNode = locationNode["traits"];
+         XmlNode knownForNode = locationNode["knownFor"];
+         XmlNode conflictsNode = locationNode["conflicts"];
+         XmlNode landmarksNode = locationNode["landmarks"];
+         XmlNode environmentNode = locationNode["environment"];
+         XmlNode weatherNode = locationNode["weather"];
+         XmlNode foodWaterNode = locationNode["foodAndWater"];
+         XmlNode hazardsNode = locationNode["hazards"];
+
+         XmlNode tagsNode = locationNode["tags"];
+         XmlNode buildingsNode = locationNode["buildings"];
+         XmlNode roomsNode = locationNode["rooms"];
+
+         if (nameNode != null)
+         {
+            locationModel = new LocationModel();
+
+            if (idNode != null)
+            {
+               if (Guid.TryParse(idNode.InnerText, out Guid id))
+               {
+                  locationModel.Id = id;
+               }
+               locationNode.RemoveChild(idNode);
+            }
+
+            locationModel.Name = nameNode.InnerText;
+            locationModel.Description = _stringService.DefaultIfNullOrEmpty(descriptionNode?.InnerText, "");
+            locationModel.Location = _stringService.DefaultIfNullOrEmpty(locationNameNode?.InnerText, "");
+            locationModel.Map = _stringService.DefaultIfNullOrEmpty(mapNode?.InnerText, "");
+            locationModel.Creator = _stringService.DefaultIfNullOrEmpty(creatorNode?.InnerText, "");
+            locationModel.RulerNotes = _stringService.DefaultIfNullOrEmpty(rulerNotesNode?.InnerText, "");
+            locationModel.Traits = _stringService.DefaultIfNullOrEmpty(traitsNode?.InnerText, "");
+            locationModel.KnownFor = _stringService.DefaultIfNullOrEmpty(knownForNode?.InnerText, "");
+            locationModel.Conflicts = _stringService.DefaultIfNullOrEmpty(conflictsNode?.InnerText, "");
+            locationModel.Landmarks = _stringService.DefaultIfNullOrEmpty(landmarksNode?.InnerText, "");
+            locationModel.Environment = _stringService.DefaultIfNullOrEmpty(environmentNode?.InnerText, "");
+            locationModel.Weather = _stringService.DefaultIfNullOrEmpty(weatherNode?.InnerText, "");
+            locationModel.FoodAndWater = _stringService.DefaultIfNullOrEmpty(foodWaterNode?.InnerText, "");
+            locationModel.Hazards = _stringService.DefaultIfNullOrEmpty(hazardsNode?.InnerText, "");
+
+            string locationTypeText = _stringService.DefaultIfNullOrEmpty(locationTypeNode?.InnerText, "");
+            if (Enum.TryParse(locationTypeText, out LocationType locationType))
+            {
+               locationModel.LocationType = locationType;
+            }
+            // else Dungeon -> Default already
+
+            foreach (XmlNode tagNode in tagsNode.SelectNodes("tag"))
+            {
+               locationModel.Tags.Add(tagNode.InnerText);
+            }
+
+            foreach (XmlNode buildingNode in buildingsNode.SelectNodes("building"))
+            {
+               BuildingModel building = GetBuilding(buildingNode);
+               if (building != null)
+               {
+                  locationModel.Buildings.Add(building);
+               }
+            }
+
+            foreach (XmlNode roomNode in roomsNode.SelectNodes("rooms"))
+            {
+               RoomModel room = GetRoom(roomNode);
+               if (room != null)
+               {
+                  locationModel.Rooms.Add(room);
+               }
+            }
+         }
+      
+         return locationModel;
+      }
+
+      #endregion
+
+
       #region Monsters
 
       /// <summary>

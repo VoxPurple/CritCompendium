@@ -25,6 +25,7 @@ namespace CritCompendium.ViewModels
       private readonly StringService _stringService;
       private readonly DialogService _dialogService;
       private readonly XMLImporter _xmlImporter;
+      private readonly XMLExporter _xmlExporter;
       private readonly DocumentService _documentService;
       private readonly DataManager _dataManager;
       private readonly ObservableCollection<ListItemViewModel<LocationModel>> _locations = new ObservableCollection<ListItemViewModel<LocationModel>>();
@@ -52,7 +53,7 @@ namespace CritCompendium.ViewModels
       /// Creates an instance of <see cref="LocationsViewModel"/>
       /// </summary>
       public LocationsViewModel(Compendium compendium, LocationSearchService locationSearchService, LocationSearchInput locationSearchInput,
-          StringService stringService, DialogService dialogService, XMLImporter xmlImporter, DocumentService documentService, DataManager dataManager)
+          StringService stringService, DialogService dialogService, XMLImporter xmlImporter, XMLExporter xmlExporter, DocumentService documentService, DataManager dataManager)
       {
          _compendium = compendium;
          _locationSearchService = locationSearchService;
@@ -60,6 +61,7 @@ namespace CritCompendium.ViewModels
          _stringService = stringService;
          _dialogService = dialogService;
          _xmlImporter = xmlImporter;
+         _xmlExporter = xmlExporter;
          _documentService = documentService;
          _dataManager = dataManager;
 
@@ -598,7 +600,7 @@ namespace CritCompendium.ViewModels
       private void ExportLocation(LocationViewModel locationViewModel)
       {
          Microsoft.Win32.SaveFileDialog saveFileDialog = new Microsoft.Win32.SaveFileDialog();
-         saveFileDialog.Filter = "Location Archive|*.ccea|Word Document|*.docx";
+         saveFileDialog.Filter = "Location Archive|*.ccla|XML Document|*.xml";
          saveFileDialog.Title = "Save Location";
          saveFileDialog.FileName = locationViewModel.Name;
 
@@ -608,14 +610,15 @@ namespace CritCompendium.ViewModels
             {
                string ext = Path.GetExtension(saveFileDialog.FileName);
 
-               if (ext == ".ccaa")
+               if (ext == ".ccla")
                {
                   byte[] bytes = _dataManager.CreateLocationArchive(locationViewModel.LocationModel);
                   File.WriteAllBytes(saveFileDialog.FileName, bytes);
                }
-               else if (ext == "*.docx")
+               else if (ext == ".xml")
                {
-                  //_documentService.CreateWordDoc(saveFileDialog.FileName, locationViewModel);
+                  string xml = _xmlExporter.FormatXMLWithHeader(_xmlExporter.GetXML(locationViewModel.LocationModel));
+                  File.WriteAllText(saveFileDialog.FileName, xml);
                }
                else
                {

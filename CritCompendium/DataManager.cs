@@ -29,6 +29,7 @@ namespace CritCompendium
       private static readonly string _featsSaveFileName = "feats.xml";
       private static readonly string _itemsSaveFileName = "items.xml";
       private static readonly string _languagesSaveFileName = "languages.csv";
+      private static readonly string _locationsSaveFileName = "locations.ccla";
       private static readonly string _monstersSaveFileName = "monsters.xml";
       private static readonly string _racesSaveFileName = "races.xml";
       private static readonly string _spellsSaveFileName = "spells.xml";
@@ -566,7 +567,11 @@ namespace CritCompendium
       /// </summary>
       public void SaveLocations(IEnumerable<LocationModel> locations)
       {
+         string path = Path.Combine(_saveDataFolder, _locationsSaveFileName);
+         ILocationPersister LocationPersister = DependencyResolver.Resolve<Version1.LocationPersister>();
 
+         byte[] locationBytes = LocationPersister.GetBytes(locations);
+         File.WriteAllBytes(path, locationBytes);
       }
 
       /// <summary>
@@ -574,7 +579,11 @@ namespace CritCompendium
       /// </summary>
       public byte[] GetLocationBytes(LocationModel location)
       {
-         return null;
+         byte[] locationBytes = null;
+         ILocationPersister locationPersister = DependencyResolver.Resolve<Version1.LocationPersister>();
+
+         locationBytes = locationPersister.GetBytes(new LocationModel[] { location });
+         return locationBytes;
       }
 
       /// <summary>
@@ -582,7 +591,23 @@ namespace CritCompendium
       /// </summary>
       public byte[] CreateLocationArchive(LocationModel location)
       {
-         return null;
+         byte[] bytes = null;
+
+         using (MemoryStream stream = new MemoryStream())
+         {
+            using (ZipArchive archive = new ZipArchive(stream, ZipArchiveMode.Create))
+            {
+               ZipArchiveEntry entry = archive.CreateEntry(_locationsSaveFileName);
+               using (BinaryWriter writer = new BinaryWriter(entry.Open()))
+               {
+                  byte[] locationBytes = GetLocationBytes(location);
+                  writer.Write(locationBytes);
+               }
+            }
+
+            bytes = stream.ToArray();
+         }
+         return bytes;
       }
 
       /// <summary>
@@ -590,7 +615,27 @@ namespace CritCompendium
       /// </summary>
       public IEnumerable<LocationModel> LoadLocations()
       {
-         return Enumerable.Empty<LocationModel>();
+         List<LocationModel> locations = new List<LocationModel>();
+         string path = Path.Combine(_saveDataFolder, _locationsSaveFileName);
+
+         if (File.Exists(path))
+         {
+            ILocationPersister LocationPersister = null;
+
+            byte[] locationBytes = File.ReadAllBytes(path);
+            int version = BitConverter.ToInt32(locationBytes.Take(4).ToArray(), 0);
+            if (version == 1)
+            {
+               LocationPersister = DependencyResolver.Resolve<Version1.LocationPersister>();
+            }
+
+            if (LocationPersister != null)
+            {
+               locations = LocationPersister.GetLocations(locationBytes).ToList();
+            }
+         }
+
+         return locations;
       }
 
       /// <summary>
@@ -598,7 +643,10 @@ namespace CritCompendium
       /// </summary>
       public LocationModel GetLocation(byte[] locationBytes)
       {
-         return null;
+         LocationModel location = null;
+         ILocationPersister locationPersister = DependencyResolver.Resolve<Version1.LocationPersister>();
+         location = locationPersister.GetLocations(locationBytes).First();
+         return location;
       }
 
       #endregion

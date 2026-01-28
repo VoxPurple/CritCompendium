@@ -384,7 +384,7 @@
                         </TextBlock.InputBindings>
                      </TextBlock>
 
-                     <!--<Rectangle Grid.Row="4"
+                     <Rectangle Grid.Row="4"
                                 Grid.Column="0"
                                 Style="{DynamicResource _selectedRectangleStyle}"
                                 Visibility="{Binding LocationsSelected, Converter={StaticResource _boolVisibilityConverter}}" />
@@ -395,7 +395,7 @@
                         <TextBlock.InputBindings>
                            <MouseBinding Command="{Binding LocationsCommand}" MouseAction="LeftClick" />
                         </TextBlock.InputBindings>
-                     </TextBlock>-->
+                     </TextBlock>
 
                      <Rectangle Grid.Row="5"
                                 Grid.Column="0"
