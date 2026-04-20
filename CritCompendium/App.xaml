@@ -34,8 +34,6 @@
             <ResourceDictionary Source="Resources/ItemTemplates/AdventureEditTemplate.xaml" />
             <ResourceDictionary Source="Resources/ItemTemplates/EncounterViewTemplate.xaml" />
             <ResourceDictionary Source="Resources/ItemTemplates/EncounterEditTemplate.xaml" />
-            <ResourceDictionary Source="Resources/ItemTemplates/LocationViewTemplate.xaml" />
-            <ResourceDictionary Source="Resources/ItemTemplates/LocationEditTemplate.xaml" />
             <ResourceDictionary Source="Resources/ItemTemplates/NPCViewTemplate.xaml" />
             <ResourceDictionary Source="Resources/ItemTemplates/NPCEditTemplate.xaml" />
             <ResourceDictionary Source="Resources/ItemTemplates/RandomTableViewTemplate.xaml" />
@@ -49,6 +47,8 @@
             <ResourceDictionary Source="Resources/ItemTemplates/MonsterTemplate.xaml" />
             <ResourceDictionary Source="Resources/ItemTemplates/RaceTemplate.xaml" />
             <ResourceDictionary Source="Resources/ItemTemplates/SpellTemplate.xaml" />
+
+            <ResourceDictionary Source="Resources/ResourceGroups/LocationsResource.xaml"/>
          </ResourceDictionary.MergedDictionaries>
       </ResourceDictionary>
    </Application.Resources>

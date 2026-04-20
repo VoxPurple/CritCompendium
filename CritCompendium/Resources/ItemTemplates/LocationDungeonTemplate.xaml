@@ -1,0 +1,11 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:ovm="clr-namespace:CritCompendium.ViewModels.ObjectViewModels">
+    <DataTemplate x:Key="_locationDungeonDetailsTemplate" DataType="{x:Type ovm:LocationViewModel}">
+      <TextBlock
+         Text="Location Dungeon"
+         Foreground="{DynamicResource _primaryTextBrush}"
+         TextWrapping="Wrap"
+         />
+    </DataTemplate>
+</ResourceDictionary>

@@ -211,13 +211,15 @@
       </Grid>
 
       <ScrollViewer Grid.Column="1" Visibility="{Binding IsEditingLocation, Converter={StaticResource _invertBoolVisibilityConverter}}">
-         <ContentControl Grid.Column="1"
-                            Margin="15,0,0,10"
-                            Content="{Binding SelectedLocation}"
-                            ContentTemplate="{DynamicResource _locationDisplayTemplate}"
-                            Style="{DynamicResource _emptyContentControlStyle}"
-                            Tag="No Location Selected"
-                            Visibility="{Binding IsEditingLocation, Converter={StaticResource _invertBoolVisibilityConverter}}" />
+         <!-- <ContentControl Grid.Column="1" -->
+                            <!-- Margin="15,0,0,10" -->
+                            <!-- Content="{Binding SelectedLocation}" -->
+                            <!-- ContentTemplate="{DynamicResource _locationDisplayTemplate}" -->
+                            <!-- Style="{DynamicResource _emptyContentControlStyle}" -->
+                            <!-- Tag="No Location Selected" -->
+                            <!-- Visibility="{Binding IsEditingLocation, Converter={StaticResource _invertBoolVisibilityConverter}}" /> -->
+         <ContentControl Content="{Binding SelectedLocation}"
+                         ContentTemplateSelector="{StaticResource _locationDetailsTemplateSelector}" />
       </ScrollViewer>
 
       <Grid Grid.Column="1"
