@@ -24,8 +24,8 @@ continue as an open source project.
 - [ ] Add tag system to organize all entries (partially complete).
 - [ ] Add Adventures (partially complete).
 - [ ] Add Locations (partially complete).
-- [ ] Add NPCs (partially complete).
-- [ ] Add Tables (partially complete).
+- [x] Add NPCs (partially complete).
+- [x] Add Tables (partially complete).
 - [ ] Save file overhaul (lots of work to do here).
 - [ ] Installer/uninstaller (previously not needed because Steam).
 
