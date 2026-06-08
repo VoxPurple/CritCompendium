@@ -7,6 +7,7 @@
       <ResourceDictionary Source="../ItemTemplates/LocationDungeonTemplate.xaml"/>
       <ResourceDictionary Source="../ItemTemplates/LocationSettlementTemplate.xaml"/>
       <ResourceDictionary Source="../ItemTemplates/LocationWildernessTemplate.xaml"/>
+      <ResourceDictionary Source="../ItemTemplates/LocationBuildingTemplate.xaml"/>
    </ResourceDictionary.MergedDictionaries>
 
    <selectors:LocationDetailsTemplateSelector x:Key="_locationDetailsTemplateSelector"

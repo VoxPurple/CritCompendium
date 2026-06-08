@@ -186,6 +186,21 @@ namespace CritCompendium.ViewModels.ObjectViewModels
          }
       }
 
+      public string Type
+      {
+         get
+         {
+            if (TypeOptionIsCustom)
+            {
+               return _buildingModel.CustomBuildingType;
+            }
+            else
+            {
+               return _buildingModel.BuildingType.ToString().Replace("_", " ");
+            }
+         }
+      }
+
       /// <summary>
       /// Gets rooms
       /// </summary>

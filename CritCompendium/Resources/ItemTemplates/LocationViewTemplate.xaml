@@ -85,17 +85,11 @@
 
                      <Border BorderBrush="{DynamicResource _contentBorderBrush}" BorderThickness="0,1,0,0">
                         <StackPanel>
-                           <Image Height="250"
-                                  Margin="0,10,0,10"
-                                  Cursor="Hand"
-                                  Source="{Binding Map}"
-                                  Stretch="Uniform" />
-
                            <StackPanel Margin="0,0,15,0" HorizontalAlignment="Left">
                               <TextBlock Margin="0,10,0,0"
                                          FontSize="10"
                                          Foreground="{DynamicResource _secondaryTextBrush}"
-                                         Text="Floor" />
+                                         Text="Floor (Default)" />
                               <TextBlock Margin="0,0,0,10"
                                          Foreground="{DynamicResource _primaryTextBrush}"
                                          Text="{Binding Floor}"

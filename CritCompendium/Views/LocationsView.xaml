@@ -10,19 +10,33 @@
              mc:Ignorable="d">
    <UserControl.Resources>
       <DataTemplate x:Key="_locationDisplayTemplate" DataType="{x:Type ovm:LocationViewModel}">
+         <!-- This template is used to interface with LocationViewModel instances -->
          <StackPanel Grid.Row="0" Margin="0,-4,10,0">
+            <!-- Overall default options (Name, Edit, Export) -->
             <Grid>
+               <Grid.RowDefinitions>
+                  <RowDefinition Height="Auto" />
+                  <RowDefinition Height="Auto" />
+               </Grid.RowDefinitions>
                <Grid.ColumnDefinitions>
                   <ColumnDefinition Width="*" />
                   <ColumnDefinition Width="Auto" />
                   <ColumnDefinition Width="Auto" />
                </Grid.ColumnDefinitions>
                <TextBlock Grid.Column="0"
+                           Grid.Row="0"
                                FontSize="20"
                                FontWeight="DemiBold"
                                Foreground="{DynamicResource _primaryTextBrush}"
                                Text="{Binding Name}"
                                TextTrimming="CharacterEllipsis" />
+               <!-- Tags for Underneath the Name -->
+                  <TextBlock Grid.Column="0"
+                                 Grid.Row="1"
+                                 FontSize="10"
+                                 Text="{Binding Tags}"
+                                 Foreground="{DynamicResource _secondaryTextBrush}"
+                                 TextWrapping="Wrap" />
 
                <Button Grid.Column="1"
                             Margin="5,0"
@@ -51,7 +65,12 @@
                </Button>
             </Grid>
 
-            <ContentControl Content="{Binding}" />
+            <!-- Location Selector w/ Details -->
+            <ContentControl Content="{Binding}"
+                            ContentTemplateSelector="{StaticResource _locationDetailsTemplateSelector}"
+                            Margin="15,0,0,10"
+                            Style="{DynamicResource _emptyContentControlStyle}"
+                            Tag="No Location Selected" />
          </StackPanel>
       </DataTemplate>
    </UserControl.Resources>
@@ -211,15 +230,13 @@
       </Grid>
 
       <ScrollViewer Grid.Column="1" Visibility="{Binding IsEditingLocation, Converter={StaticResource _invertBoolVisibilityConverter}}">
-         <!-- <ContentControl Grid.Column="1" -->
-                            <!-- Margin="15,0,0,10" -->
-                            <!-- Content="{Binding SelectedLocation}" -->
-                            <!-- ContentTemplate="{DynamicResource _locationDisplayTemplate}" -->
-                            <!-- Style="{DynamicResource _emptyContentControlStyle}" -->
-                            <!-- Tag="No Location Selected" -->
-                            <!-- Visibility="{Binding IsEditingLocation, Converter={StaticResource _invertBoolVisibilityConverter}}" /> -->
-         <ContentControl Content="{Binding SelectedLocation}"
-                         ContentTemplateSelector="{StaticResource _locationDetailsTemplateSelector}" />
+         <ContentControl Grid.Column="1"
+                            Margin="15,0,0,10"
+                            Content="{Binding SelectedLocation}"
+                            ContentTemplate="{DynamicResource _locationDisplayTemplate}"
+                            Style="{DynamicResource _emptyContentControlStyle}"
+                            Tag="No Location Selected"
+                            Visibility="{Binding IsEditingLocation, Converter={StaticResource _invertBoolVisibilityConverter}}" />
       </ScrollViewer>
 
       <Grid Grid.Column="1"

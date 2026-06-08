@@ -201,6 +201,11 @@ namespace CritCompendium.ViewModels.ObjectViewModels
          get { return !String.IsNullOrWhiteSpace(_locationModel.Hazards) ? _locationModel.Hazards : "Unknown"; }
       }
 
+      public string Tags
+      {
+         get { return _locationModel.Tags != null && _locationModel.Tags.Count > 0 ? String.Join(", ", _locationModel.Tags) : "No Tags"; }
+      }
+
       #endregion
 
       #region Public Methods
