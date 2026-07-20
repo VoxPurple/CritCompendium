@@ -22,6 +22,7 @@
    <BitmapImage x:Key="_restoreImage" UriSource="/CritCompendium;component/Resources/Images/Window/restore_32.png" />
    <BitmapImage x:Key="_closeImage" UriSource="/CritCompendium;component/Resources/Images/Window/close_32.png" />
    <BitmapImage x:Key="_editImage" UriSource="/CritCompendium;component/Resources/Images/edit_32.png" />
+   <BitmapImage x:Key="_openMapImage" UriSource="/CritCompendium;component/Resources/Images/open_map_32.png" />
    <BitmapImage x:Key="_exportImage" UriSource="/CritCompendium;component/Resources/Images/export_32.png" />
    <BitmapImage x:Key="_importImage" UriSource="/CritCompendium;component/Resources/Images/import_32.png" />
    <BitmapImage x:Key="_addImage" UriSource="/CritCompendium;component/Resources/Images/add_32.png" />

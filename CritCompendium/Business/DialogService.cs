@@ -851,6 +851,30 @@ namespace CritCompendium.Business
          return result == true ? ((int?)deathSavesViewModel.Successes, (int?)deathSavesViewModel.Failures) : (null, null);
       }
 
+
+      /// <summary>
+      /// Shows map dialog
+      /// </summary>
+      public void ShowMapDialog(LocationModel locationModel)
+      {
+         bool allowWindowResize = true;
+         ModalDialog modalDialog = new ModalDialog(allowWindowResize);
+
+         if (_parentWindow != null)
+         {
+            modalDialog.Owner = _parentWindow;
+         }
+
+         MapView mapView = DependencyResolver.Resolve<MapView>();
+         mapView.ViewModel.SetLocation(locationModel);
+
+         modalDialog.WindowTitle = locationModel.Name;
+         modalDialog.Body = mapView;
+
+         ShowDialog(modalDialog);
+      }
+
+
       public void ShowImportView()
       {
          ModalDialog modalDialog = new ModalDialog();

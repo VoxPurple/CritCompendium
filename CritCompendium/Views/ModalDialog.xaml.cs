@@ -17,17 +17,24 @@ namespace CritCompendium.Views
       private string _title;
       private FrameworkElement _body;
       private IConfirmation _confirmation;
+      private bool _allowWindowResize;
       private bool? _result = null;
       private bool _tabPressed;
 
       public ModalDialog()
       {
+         _allowWindowResize = false;
          InitializeComponent();
 
          DataContext = this;
 
          PreviewKeyDown += View_PreviewKeyDown;
          PreviewGotKeyboardFocus += View_PreviewGotKeyboardFocus;
+      }
+
+      public ModalDialog(bool allowWindowResize) : this()
+      {
+         _allowWindowResize = allowWindowResize;
       }
 
       public string WindowTitle
@@ -62,6 +69,34 @@ namespace CritCompendium.Views
          {
             SetConfirmation(value);
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Confirmation)));
+         }
+      }
+
+      public bool AllowWindowResize
+      {
+         get { return _allowWindowResize; }
+      }
+
+      public bool WindowMaximized
+      {
+         get { return WindowState == WindowState.Maximized; }
+         set
+         {
+            if (!AllowWindowResize)
+            {
+               return;
+            }
+            if (value)
+            {
+               SizeToContent = SizeToContent.Manual;
+               WindowState = WindowState.Maximized;
+            }
+            else
+            {
+               SizeToContent = SizeToContent.WidthAndHeight;
+               WindowState = WindowState.Normal;
+            }
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(WindowMaximized)));
          }
       }
 
@@ -107,6 +142,11 @@ namespace CritCompendium.Views
       {
          _result = null;
          Close();
+      }
+
+      private void _windowResize_Click(object sender, RoutedEventArgs e)
+      {
+         WindowMaximized = !WindowMaximized;
       }
 
       private void View_PreviewKeyDown(object sender, KeyEventArgs e)

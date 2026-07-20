@@ -39,7 +39,7 @@
     <OutputPath>bin\Debug\</OutputPath>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
+    <WarningLevel>5</WarningLevel>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -116,6 +116,7 @@
     </Compile>
     <Compile Include="DataManager.cs" />
     <Compile Include="GridLengthConverter.cs" />
+    <Compile Include="MapAlignmentConverter.cs" />
     <Compile Include="NotifyPropertyChanged.cs" />
     <Compile Include="ProficiencyControl.xaml.cs">
       <DependentUpon>ProficiencyControl.xaml</DependentUpon>
@@ -162,6 +163,7 @@
     <Compile Include="ViewModels\ListItemViewModels\SpellListItemViewModel.cs" />
     <Compile Include="ViewModels\LocationsViewModel.cs" />
     <Compile Include="ViewModels\MainWindowViewModel.cs" />
+    <Compile Include="ViewModels\MapViewModel.cs" />
     <Compile Include="ViewModels\MonstersViewModel.cs" />
     <Compile Include="ViewModels\NPCsViewModel.cs" />
     <Compile Include="ViewModels\ObjectViewModels\AbilityScoreEditViewModel.cs" />
@@ -310,6 +312,9 @@
     </Compile>
     <Compile Include="Views\LocationsView.xaml.cs">
       <DependentUpon>LocationsView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\MapView.xaml.cs">
+      <DependentUpon>MapView.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\ModalDialog.xaml.cs">
       <DependentUpon>ModalDialog.xaml</DependentUpon>
@@ -731,6 +736,10 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="Views\MapView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Views\ModalDialog.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -835,6 +844,9 @@
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Resources\Images\edit_32.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\Images\open_map_32.png" />
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Resources\Images\calc_64.png" />
@@ -961,6 +973,7 @@
     <Resource Include="Resources\Images\LightTheme\d8_64.png" />
     <Resource Include="Resources\Images\LightTheme\delete_32.png" />
     <Resource Include="Resources\Images\LightTheme\edit_32.png" />
+    <Resource Include="Resources\Images\LightTheme\open_map_32.png" />
     <Resource Include="Resources\Images\LightTheme\export_32.png" />
     <Resource Include="Resources\Images\LightTheme\ghost_32.png" />
     <Resource Include="Resources\Images\LightTheme\import_32.png" />

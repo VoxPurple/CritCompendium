@@ -41,6 +41,7 @@ namespace CritCompendium.ViewModels
       private readonly ICommand _importCommand;
       private readonly ICommand _selectNextCommand;
       private readonly ICommand _selectPreviousCommand;
+      private readonly ICommand _openMapCommand;
       private LocationViewModel _selectedLocation;
       private LocationEditViewModel _locationEditViewModel;
       private bool _editHasUnsavedChanges;
@@ -77,6 +78,7 @@ namespace CritCompendium.ViewModels
          _importCommand = new RelayCommand(obj => true, obj => Import());
          _selectNextCommand = new RelayCommand(obj => true, obj => SelectNext());
          _selectPreviousCommand = new RelayCommand(obj => true, obj => SelectPrevious());
+         _openMapCommand = new RelayCommand(obj => true, obj => OpenMap());
 
          Search();
       }
@@ -144,6 +146,14 @@ namespace CritCompendium.ViewModels
       public ICommand EditLocationCommand
       {
          get { return _editLocationCommand; }
+      }
+
+      /// <summary>
+      /// Command to open map
+      /// </summary>
+      public ICommand OpenMapCommand
+      {
+         get { return _openMapCommand; }
       }
 
       /// <summary>
@@ -594,6 +604,14 @@ namespace CritCompendium.ViewModels
          if (!_editHasUnsavedChanges)
          {
             _editHasUnsavedChanges = true;
+         }
+      }
+
+      private void OpenMap()
+      {
+         if (_selectedLocation != null)
+         {
+            _dialogService.ShowMapDialog(_selectedLocation.LocationModel);   
          }
       }
 

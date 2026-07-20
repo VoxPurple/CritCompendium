@@ -1,0 +1,20 @@
+﻿<UserControl x:Class="CritCompendium.Views.MapView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:local="clr-namespace:CritCompendium.Views"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             Width="Auto"
+             Height="Auto"
+             mc:Ignorable="d">
+
+    <Border Padding="5">
+      <Grid>
+        <Image Source="{Binding MapImagePath}"
+               Stretch="Uniform"
+               HorizontalAlignment="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=WindowMaximized, Converter={StaticResource _boolMapAlignmentConverter}}"
+               VerticalAlignment="{Binding RelativeSource={RelativeSource AncestorType=Window}, Path=WindowMaximized, Converter={StaticResource _boolMapAlignmentConverter}}" />
+        <ContentControl Content="{Binding Map}" />
+      </Grid>
+    </Border>
+</UserControl>

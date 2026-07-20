@@ -50,6 +50,16 @@
             </Trigger>
          </Style.Triggers>
       </Style>
+      
+      <Style x:Key="_windowSizeButtonStyle"
+               BasedOn="{StaticResource _windowButtonStyle}"
+               TargetType="Button">
+         <Style.Triggers>
+            <Trigger Property="IsMouseOver" Value="True">
+               <Setter Property="Background" Value="#FF7E7E7E" />
+            </Trigger>
+         </Style.Triggers>
+      </Style>
    </Window.Resources>
 
    <Border BorderBrush="{DynamicResource _contentBorderBrush}" BorderThickness="2">
@@ -65,6 +75,7 @@
             <Grid.ColumnDefinitions>
                <ColumnDefinition Width="Auto" />
                <ColumnDefinition Width="*" />
+               <ColumnDefinition Width="Auto" />
                <ColumnDefinition Width="Auto" />
             </Grid.ColumnDefinitions>
 
@@ -87,8 +98,25 @@
                         Content="&#x1f5d9;"
                         Style="{DynamicResource _closeWindowButtonStyle}" />-->
 
-            <Button x:Name="_closeButton"
+            <Button x:Name="_maximizeButton"
                         Grid.Column="2"
+                        Click="_windowResize_Click"
+                        Style="{DynamicResource _windowSizeButtonStyle}"
+                        Visibility="{Binding AllowWindowResize, Converter={StaticResource _boolVisibilityConverter}}">
+               <Grid>
+                  <Image Width="16"
+                           Height="16"
+                           Source="{DynamicResource _maximizeImage}"
+                           Visibility="{Binding WindowMaximized, Converter={StaticResource _invertBoolVisibilityConverter}}"/>
+                  <Image Width="16"
+                           Height="16"
+                           Source="{DynamicResource _restoreImage}"
+                           Visibility="{Binding WindowMaximized, Converter={StaticResource _boolVisibilityConverter}}"/>
+               </Grid>
+            </Button>
+
+            <Button x:Name="_closeButton"
+                        Grid.Column="3"
                         Click="_closeButton_Click"
                         Style="{DynamicResource _closeWindowButtonStyle}">
                <Image Width="16"

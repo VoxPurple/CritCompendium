@@ -9,5 +9,7 @@
                                         False="Visible"
                                         True="Collapsed" />
 
+   <local:MapAlignmentConverter x:Key="_boolMapAlignmentConverter" />
+
    <local:GridLengthConverter x:Key="_gridLengthConverter" />
 </ResourceDictionary>

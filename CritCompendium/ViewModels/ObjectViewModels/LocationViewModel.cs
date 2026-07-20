@@ -64,6 +64,14 @@ namespace CritCompendium.ViewModels.ObjectViewModels
       }
 
       /// <summary>
+      /// Gets global location description
+      /// </summary>
+      public string Location
+      {
+         get { return _locationModel.Location.ToString();}
+      }
+
+      /// <summary>
       /// Gets map
       /// </summary>
       public string Map
